@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${movie != null ? 'Sửa phim' : 'Thêm phim'})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title" th:text="${movie != null ? 'Sửa phim' : 'Thêm phim mới'}"></div>
+      <div class="page-subtitle" th:text="${movie != null ? 'Chỉnh sửa thông tin bộ phim' : 'Điền thông tin bộ phim mới'}"></div>
+    </div>
+  </div>
+
+  <div th:if="${errorMsg}" class="alert alert-error" th:text="${errorMsg}"></div>
+
+  <form th:action="${movie != null ? '/admin/movies/' + movie.movieId + '/edit' : '/admin/movies/create'}"
+        method="post" th:object="${movieRequest}">
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start;">
+
+      <!-- Cột trái -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <div class="card">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.25rem;">Thông tin cơ bản</div>
+
+          <div class="form-group">
+            <label class="form-label" for="title">Tên phim *</label>
+            <input type="text" id="title" th:field="*{title}"
+                   th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"
+                   class="form-control" placeholder="VD: Avengers: Endgame"/>
+            <div th:if="${#fields.hasErrors('title')}" class="field-error" th:errors="*{title}"></div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="director">Đạo diễn *</label>
+              <input type="text" id="director" th:field="*{director}"
+                     th:classappend="${#fields.hasErrors('director')} ? 'is-invalid'"
+                     class="form-control" placeholder="VD: Christopher Nolan"/>
+              <div th:if="${#fields.hasErrors('director')}" class="field-error" th:errors="*{director}"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="duration">Thời lượng (phút) *</label>
+              <input type="number" id="duration" th:field="*{duration}"
+                     th:classappend="${#fields.hasErrors('duration')} ? 'is-invalid'"
+                     class="form-control" placeholder="120" min="1"/>
+              <div th:if="${#fields.hasErrors('duration')}" class="field-error" th:errors="*{duration}"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="actors">Diễn viên *</label>
+            <input type="text" id="actors" th:field="*{actors}"
+                   th:classappend="${#fields.hasErrors('actors')} ? 'is-invalid'"
+                   class="form-control" placeholder="VD: Robert Downey Jr., Chris Evans"/>
+            <div th:if="${#fields.hasErrors('actors')}" class="field-error" th:errors="*{actors}"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="description">Mô tả *</label>
+            <textarea id="description" th:field="*{description}"
+                      th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                      class="form-control" rows="4" placeholder="Tóm tắt nội dung phim..."></textarea>
+            <div th:if="${#fields.hasErrors('description')}" class="field-error" th:errors="*{description}"></div>
+          </div>
+        </div>
+
+        <!-- Thể loại -->
+        <div class="card">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1rem;">Thể loại *</div>
+          <div th:if="${#fields.hasErrors('genreIds')}" class="field-error" style="margin-bottom:0.75rem;" th:errors="*{genreIds}"></div>
+          <div class="check-group">
+            <label th:each="genre : ${genres}"
+                   class="check-label"
+                   th:classappend="${movieRequest.genreIds != null and #lists.contains(movieRequest.genreIds, genre.genreId)} ? 'checked'">
+              <input type="checkbox" name="genreIds" th:value="${genre.genreId}"
+                     th:checked="${movieRequest.genreIds != null and #lists.contains(movieRequest.genreIds, genre.genreId)}"/>
+              <span th:text="${genre.genreName}"></span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Cột phải -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <div class="card">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.25rem;">Trạng thái & Phân loại</div>
+
+          <div class="form-group">
+            <label class="form-label" for="status">Trạng thái *</label>
+            <select id="status" th:field="*{status}"
+                    th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'"
+                    class="form-control">
+              <option value="">-- Chọn trạng thái --</option>
+              <option th:each="s : ${statuses}" th:value="${s}"
+                      th:text="${s.name() == 'NOW_SHOWING'} ? 'Đang chiếu' : (${s.name() == 'COMING_SOON'} ? 'Sắp chiếu' : 'Dừng chiếu')"></option>
+            </select>
+            <div th:if="${#fields.hasErrors('status')}" class="field-error" th:errors="*{status}"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="ageRating">Phân loại tuổi</label>
+            <select id="ageRating" th:field="*{ageRating}" class="form-control">
+              <option value="">-- Chọn --</option>
+              <option value="P">P - Mọi lứa tuổi</option>
+              <option value="C13">C13 - Từ 13 tuổi</option>
+              <option value="C16">C16 - Từ 16 tuổi</option>
+              <option value="C18">C18 - Từ 18 tuổi</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="releaseDate">Ngày khởi chiếu</label>
+            <input type="date" id="releaseDate" th:field="*{releaseDate}" class="form-control"/>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.25rem;">Media</div>
+
+          <div class="form-group">
+            <label class="form-label" for="poster">URL Poster *</label>
+            <input type="text" id="poster" th:field="*{poster}"
+                   th:classappend="${#fields.hasErrors('poster')} ? 'is-invalid'"
+                   class="form-control" placeholder="https://..."/>
+            <div th:if="${#fields.hasErrors('poster')}" class="field-error" th:errors="*{poster}"></div>
+            <img id="posterPreview"
+                 th:src="${movieRequest.poster}"
+                 th:style="${movieRequest.poster != null and !#strings.isEmpty(movieRequest.poster)} ? 'width:80px;border-radius:6px;border:1px solid var(--border);margin-top:0.75rem;' : 'display:none'"
+                 onerror="this.style.display='none'"/>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="trailerUrl">URL Trailer</label>
+            <input type="text" id="trailerUrl" th:field="*{trailerUrl}"
+                   class="form-control" placeholder="https://youtube.com/..."/>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.6rem;">
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;"
+                  th:text="${movie != null ? 'Lưu thay đổi' : 'Thêm phim'}">Submit</button>
+          <a th:href="@{/admin/movies}" class="btn btn-ghost" style="width:100%;justify-content:center;">Hủy</a>
+        </div>
+
+      </div>
+
+    </div>
+  </form>
+
+</div>
+
+<script>
+  document.querySelectorAll('.check-label input[type=checkbox]').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      this.closest('.check-label').classList.toggle('checked', this.checked);
+    });
+  });
+  var posterInput = document.getElementById('poster');
+  var posterPreview = document.getElementById('posterPreview');
+  if (posterInput) {
+    posterInput.addEventListener('input', function() {
+      if (posterPreview) {
+        posterPreview.src = this.value;
+        posterPreview.style.display = this.value ? 'block' : 'none';
+        posterPreview.style.width = '80px';
+        posterPreview.style.borderRadius = '6px';
+        posterPreview.style.border = '1px solid var(--border)';
+        posterPreview.style.marginTop = '0.75rem';
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

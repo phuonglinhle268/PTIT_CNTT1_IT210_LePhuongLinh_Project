@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Phim đang chiếu')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <!-- Hero search -->
+    <div style="background:linear-gradient(135deg,#111118 0%,#1a1a24 100%);border:1px solid var(--border);border-radius:var(--radius-lg);padding:3rem 2rem;text-align:center;margin-bottom:2.5rem;position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:10rem;color:rgba(255,255,255,0.02);letter-spacing:8px;pointer-events:none;">CINEMA</div>
+        <div style="position:relative;z-index:1;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:2px;margin-bottom:0.5rem;">Đặt vé xem phim</div>
+            <div style="color:var(--text-2);margin-bottom:1.75rem;font-size:0.9rem;">Chọn phim, chọn ghế — nhanh gọn trong vài giây</div>
+            <form th:action="@{/movies}" method="get" style="display:flex;gap:0.75rem;max-width:480px;margin:0 auto;">
+                <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Tìm tên phim..." style="flex:1;"/>
+                <button type="submit" class="btn btn-primary">Tìm</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Kết quả tìm kiếm -->
+    <div th:if="${keyword != null and !#strings.isEmpty(keyword)}">
+        <div class="page-header">
+            <div>
+                <div class="page-title" style="font-size:1.4rem;">
+                    Kết quả cho "<span th:text="${keyword}" style="color:var(--gold);"></span>"
+                </div>
+            </div>
+        </div>
+        <div th:if="${searchResults.empty}" style="text-align:center;padding:3rem;color:var(--text-3);">
+            Không tìm thấy phim nào. <a th:href="@{/movies}">Xem tất cả phim</a>
+        </div>
+        <div th:unless="${searchResults.empty}"
+             style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;">
+            <th:block th:each="movie : ${searchResults}">
+                <div th:replace="~{fragments/movie-card :: card(${movie})}"></div>
+            </th:block>
+        </div>
+    </div>
+
+    <!-- Danh sách phim bình thường -->
+    <div th:if="${keyword == null or #strings.isEmpty(keyword)}">
+
+        <div th:if="${nowShowing.empty and comingSoon.empty}"
+             style="text-align:center;padding:5rem;color:var(--text-3);">
+            Hiện chưa có phim nào.
+        </div>
+
+        <!-- Đang chiếu -->
+        <div th:unless="${nowShowing.empty}" style="margin-bottom:3rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+                <div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:1px;">Đang chiếu</div>
+                    <div style="color:var(--text-3);font-size:0.8rem;" th:text="${nowShowing.size()} + ' bộ phim'"></div>
+                </div>
+                <span class="badge badge-green">NOW SHOWING</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;">
+                <th:block th:each="movie : ${nowShowing}">
+                    <div th:replace="~{fragments/movie-card :: card(${movie})}"></div>
+                </th:block>
+            </div>
+        </div>
+
+        <!-- Sắp chiếu -->
+        <div th:unless="${comingSoon.empty}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+                <div>
+                    <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:1px;">Sắp chiếu</div>
+                    <div style="color:var(--text-3);font-size:0.8rem;" th:text="${comingSoon.size()} + ' bộ phim'"></div>
+                </div>
+                <span class="badge badge-gold">COMING SOON</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;">
+                <th:block th:each="movie : ${comingSoon}">
+                    <div th:replace="~{fragments/movie-card :: card(${movie})}"></div>
+                </th:block>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

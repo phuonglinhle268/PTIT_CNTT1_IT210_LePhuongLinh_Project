@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Đăng nhập | Smart Cinema</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg: #0a0a0f; --bg-2: #111118; --bg-3: #1a1a24;
+            --border: rgba(255,255,255,0.07); --border-hi: rgba(255,255,255,0.15);
+            --gold: #e8b84b; --red: #e84b4b;
+            --text: #f0eeea; --text-2: #9b9790; --text-3: #5c5a56;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh; display: flex;
+        }
+
+        .auth-left {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 3rem 2rem; position: relative; overflow: hidden;
+        }
+        .auth-left::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                    repeating-linear-gradient(0deg,
+                    transparent, transparent 80px,
+                    rgba(255,255,255,0.015) 80px,
+                    rgba(255,255,255,0.015) 82px),
+                    linear-gradient(135deg, #0a0a0f 0%, #111118 50%, #0f0f18 100%);
+        }
+        .auth-left-content { position: relative; z-index: 1; text-align: center; }
+        .brand {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem; letter-spacing: 4px; color: var(--gold); line-height: 1;
+        }
+        .brand-sub { color: var(--text-3); font-size: 0.8rem; letter-spacing: 0.3em; margin-top: 0.5rem; }
+        .auth-decoration { margin-top: 3rem; display: flex; flex-direction: column; gap: 0.5rem; opacity: 0.35; }
+        .film-row { display: flex; gap: 3px; }
+        .film-hole { width: 12px; height: 10px; background: var(--bg-3); border-radius: 2px; }
+        .film-frame { flex: 1; height: 60px; background: var(--bg-3); border-radius: 2px; }
+
+
+        .auth-right {
+            width: 440px; background: var(--bg-2);
+            border-left: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            padding: 3rem 2.5rem;
+        }
+        .auth-form-wrap { width: 100%; }
+        .auth-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 1px; margin-bottom: 0.35rem; }
+        .auth-subtitle { color: var(--text-2); font-size: 0.875rem; margin-bottom: 2rem; }
+
+        .form-group { margin-bottom: 1.1rem; }
+        .form-label {
+            display: block; font-size: 0.75rem; font-weight: 600;
+            color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.45rem;
+        }
+        .form-control {
+            width: 100%; background: var(--bg-3); border: 1px solid var(--border);
+            border-radius: 8px; color: var(--text);
+            font-family: inherit; font-size: 0.9rem; padding: 0.7rem 0.9rem; outline: none;
+            transition: border-color 0.15s;
+        }
+        .form-control:focus { border-color: var(--gold); }
+        .form-control::placeholder { color: var(--text-3); }
+        .form-control.is-invalid { border-color: var(--red); }
+        .field-error { color: var(--red); font-size: 0.76rem; margin-top: 0.3rem; }
+
+        .alert { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.25rem; }
+        .alert-error   { background: rgba(232,75,75,0.1);  border: 1px solid rgba(232,75,75,0.3);  color: var(--red); }
+        .alert-success { background: rgba(75,232,138,0.1); border: 1px solid rgba(75,232,138,0.3); color: #4be88a; }
+
+        .btn-submit {
+            width: 100%; padding: 0.8rem;
+            background: var(--gold); color: #0a0a0f;
+            border: none; border-radius: 8px;
+            font-family: inherit; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; margin-top: 0.5rem; transition: opacity 0.15s;
+        }
+        .btn-submit:hover { opacity: 0.88; }
+
+
+        .register-hint {
+            margin-top: 1.5rem; text-align: center;
+            font-size: 0.85rem; color: var(--text-2);
+        }
+        .register-hint a { color: var(--gold); }
+
+        @media (max-width: 750px) {
+            .auth-left { display: none; }
+            .auth-right { width: 100%; border-left: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-left">
+    <div class="auth-left-content">
+        <div class="brand">NATIONAL<br/>CINEMA</div>
+        <div class="brand-sub">TRẢI NGHIỆM ĐIỆN ẢNH ĐỈNH CAO</div>
+        <div class="auth-decoration">
+            <div class="film-row">
+                <div class="film-hole"></div><div class="film-frame"></div><div class="film-hole"></div>
+            </div>
+            <div class="film-row">
+                <div class="film-hole"></div><div class="film-frame"></div><div class="film-hole"></div>
+            </div>
+            <div class="film-row">
+                <div class="film-hole"></div><div class="film-frame"></div><div class="film-hole"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="auth-right">
+    <div class="auth-form-wrap">
+        <div class="auth-title">Đăng nhập</div>
+        <div class="auth-subtitle">Chào mừng trở lại</div>
+
+        <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+        <div th:if="${errorMsg}"   class="alert alert-error"   th:text="${errorMsg}"></div>
+
+        <form th:action="@{/auth/login}" method="post" th:object="${loginRequest}">
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" id="username"
+                       th:field="*{username}"
+                       th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+                       class="form-control"
+                       placeholder="Nhập username"
+                       autocomplete="username"/>
+                <div th:if="${#fields.hasErrors('username')}" class="field-error" th:errors="*{username}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Mật khẩu</label>
+                <input type="password" id="password"
+                       th:field="*{password}"
+                       th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+                       class="form-control"
+                       autocomplete="current-password"/>
+                <div th:if="${#fields.hasErrors('password')}" class="field-error" th:errors="*{password}"></div>
+            </div>
+
+            <button type="submit" class="btn-submit">Đăng nhập</button>
+        </form>
+
+
+        <div class="register-hint">
+            Chưa có tài khoản? <a th:href="@{/auth/register}">Đăng ký ngay</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

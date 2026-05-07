@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${movie.title})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div style="margin-bottom:1.5rem;font-size:0.82rem;color:var(--text-3);">
+        <a th:href="@{/movies}" style="color:var(--text-3);">Phim</a>
+        <span style="margin:0 0.5rem;">›</span>
+        <span style="color:var(--text-2);" th:text="${movie.title}"></span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:260px 1fr;gap:2rem;align-items:start;">
+
+        <!-- Poster -->
+        <div>
+            <div style="border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);">
+                <img th:if="${movie.poster != null and !#strings.isEmpty(movie.poster)}"
+                     th:src="${movie.poster}" th:alt="${movie.title}"
+                     style="width:100%;display:block;"/>
+                <div th:unless="${movie.poster != null and !#strings.isEmpty(movie.poster)}"
+                     style="height:360px;background:var(--bg-3);display:flex;align-items:center;justify-content:center;font-size:4rem;">🎬</div>
+            </div>
+
+            <div th:if="${movie.status.name() == 'NOW_SHOWING'}" style="margin-top:1rem;">
+                <a th:href="@{/customer/showtimes/{id}(id=${movie.movieId})}"
+                   class="btn btn-primary" style="width:100%;justify-content:center;padding:0.85rem;">
+                    Chọn suất chiếu & Đặt vé
+                </a>
+            </div>
+            <div th:if="${movie.status.name() == 'COMING_SOON'}"
+                 style="margin-top:1rem;text-align:center;padding:0.75rem;background:rgba(232,184,75,0.08);border:1px solid rgba(232,184,75,0.2);border-radius:var(--radius);font-size:0.85rem;color:var(--gold);">
+                Sắp ra mắt
+            </div>
+        </div>
+
+        <!-- Thông tin -->
+        <div>
+            <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;">
+                <h1 style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:1px;line-height:1.1;flex:1;"
+                    th:text="${movie.title}"></h1>
+                <span th:if="${movie.ageRating != null}" class="badge badge-gold"
+                      style="font-size:0.8rem;padding:0.3rem 0.7rem;margin-top:0.25rem;"
+                      th:text="${movie.ageRating}"></span>
+            </div>
+
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+                <span th:each="genre : ${movie.genres}" class="badge badge-gray" th:text="${genre.genreName}"></span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+                <div class="card card-sm">
+                    <div style="font-size:0.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Đạo diễn</div>
+                    <div style="font-weight:500;" th:text="${movie.director}"></div>
+                </div>
+                <div class="card card-sm">
+                    <div style="font-size:0.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Thời lượng</div>
+                    <div style="font-weight:500;" th:text="${movie.duration} + ' phút'"></div>
+                </div>
+                <div class="card card-sm" th:if="${movie.releaseDate != null}">
+                    <div style="font-size:0.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Khởi chiếu</div>
+                    <div style="font-weight:500;" th:text="${#temporals.format(movie.releaseDate,'dd/MM/yyyy')}"></div>
+                </div>
+                <div class="card card-sm">
+                    <div style="font-size:0.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Trạng thái</div>
+                    <span class="badge"
+                          th:classappend="${movie.status.name() == 'NOW_SHOWING'} ? 'badge-green' : (${movie.status.name() == 'COMING_SOON'} ? 'badge-gold' : 'badge-red')"
+                          th:text="${movie.status.name() == 'NOW_SHOWING'} ? 'Đang chiếu' : (${movie.status.name() == 'COMING_SOON'} ? 'Sắp chiếu' : 'Dừng chiếu')"></span>
+                </div>
+            </div>
+
+            <div style="margin-bottom:1.5rem;">
+                <div style="font-size:0.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">Diễn viên</div>
+                <div style="color:var(--text-2);font-size:0.9rem;" th:text="${movie.actors}"></div>
+            </div>
+
+            <div>
+                <div style="font-size:0.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;">Nội dung</div>
+                <div style="color:var(--text-2);line-height:1.7;font-size:0.9rem;" th:text="${movie.description}"></div>
+            </div>
+
+            <div th:if="${movie.trailerUrl != null and !#strings.isEmpty(movie.trailerUrl)}" style="margin-top:1.5rem;">
+                <a th:href="${movie.trailerUrl}" target="_blank" class="btn btn-ghost">▶ Xem trailer</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

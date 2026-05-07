@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="card(movie)"
+     style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color 0.2s,transform 0.2s;"
+     onmouseover="this.style.borderColor='var(--border-hi)';this.style.transform='translateY(-3px)'"
+     onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+
+    <a th:href="@{/movies/{id}(id=${movie.movieId})}" style="display:block;text-decoration:none;color:inherit;">
+        <div style="position:relative;aspect-ratio:2/3;overflow:hidden;background:var(--bg-3);">
+            <img th:if="${movie.poster != null and !#strings.isEmpty(movie.poster)}"
+                 th:src="${movie.poster}" th:alt="${movie.title}"
+                 style="width:100%;height:100%;object-fit:cover;"
+                 onerror="this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:2.5rem;\'>🎬</div>'"/>
+            <div th:unless="${movie.poster != null and !#strings.isEmpty(movie.poster)}"
+                 style="display:flex;align-items:center;justify-content:center;height:100%;font-size:2.5rem;">🎬</div>
+            <div th:if="${movie.ageRating != null}"
+                 style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);border-radius:4px;padding:2px 7px;font-size:0.7rem;font-weight:700;color:var(--gold);"
+                 th:text="${movie.ageRating}"></div>
+            <div th:if="${movie.status.name() == 'COMING_SOON'}"
+                 style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(232,184,75,0.85));padding:1rem 0.6rem 0.5rem;font-size:0.7rem;font-weight:700;color:#0a0a0f;text-align:center;letter-spacing:0.1em;">SẮP CHIẾU</div>
+        </div>
+        <div style="padding:0.75rem;">
+            <div style="font-weight:600;font-size:0.875rem;color:var(--text);line-height:1.3;margin-bottom:0.35rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"
+                 th:text="${movie.title}"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:0.75rem;color:var(--text-3);" th:text="${movie.duration} + ' phút'"></div>
+            </div>
+            <div th:if="${movie.status.name() == 'NOW_SHOWING'}" style="margin-top:0.65rem;">
+                <div style="width:100%;padding:0.4rem;background:var(--gold);color:#0a0a0f;border-radius:6px;text-align:center;font-size:0.78rem;font-weight:700;">Đặt vé ngay</div>
+            </div>
+        </div>
+    </a>
+
+</div>
+
+</html>

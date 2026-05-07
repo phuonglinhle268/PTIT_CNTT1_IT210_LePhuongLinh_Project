@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý phim')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Quản lý phim</div>
+            <div class="page-subtitle" th:text="${movies.size()} + ' bộ phim trong hệ thống'"></div>
+        </div>
+        <a th:href="@{/admin/movies/create}" class="btn btn-primary">+ Thêm phim</a>
+    </div>
+
+    <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+    <div th:if="${errorMsg}"   class="alert alert-error"   th:text="${errorMsg}"></div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Poster</th>
+                    <th>Tên phim</th>
+                    <th>Đạo diễn</th>
+                    <th>Thời lượng</th>
+                    <th>Thể loại</th>
+                    <th>Trạng thái</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${movies.empty}">
+                    <td colspan="7" style="text-align:center;padding:3rem;color:var(--text-3);">
+                        Chưa có phim nào. <a th:href="@{/admin/movies/create}">Thêm ngay</a>
+                    </td>
+                </tr>
+                <tr th:each="movie : ${movies}">
+                    <td>
+                        <img th:if="${movie.poster != null and !#strings.isEmpty(movie.poster)}"
+                             th:src="${movie.poster}" class="poster" th:alt="${movie.title}"
+                             onerror="this.style.display='none'"/>
+                        <div th:unless="${movie.poster != null and !#strings.isEmpty(movie.poster)}"
+                             class="poster-placeholder">🎬</div>
+                    </td>
+                    <td class="td-main" th:text="${movie.title}"></td>
+                    <td th:text="${movie.director}"></td>
+                    <td th:text="${movie.duration} + ' phút'"></td>
+                    <td>
+                            <span th:each="genre : ${movie.genres}" class="badge badge-gray"
+                                  th:text="${genre.genreName}" style="margin-right:2px;"></span>
+                        <span th:if="${movie.genres.empty}" style="color:var(--text-3);">—</span>
+                    </td>
+                    <td>
+                            <span class="badge"
+                                  th:classappend="${movie.status.name() == 'NOW_SHOWING'} ? 'badge-green' : (${movie.status.name() == 'COMING_SOON'} ? 'badge-gold' : 'badge-red')"
+                                  th:text="${movie.status.name() == 'NOW_SHOWING'} ? 'Đang chiếu' : (${movie.status.name() == 'COMING_SOON'} ? 'Sắp chiếu' : 'Dừng chiếu')"></span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:0.5rem;">
+                            <a th:href="@{/admin/movies/{id}/edit(id=${movie.movieId})}"
+                               class="btn btn-ghost btn-sm">Sửa</a>
+                            <form th:action="@{/admin/movies/{id}/delete(id=${movie.movieId})}"
+                                  method="post"
+                                  th:onsubmit="'return confirm(\'Xóa phim ' + ${movie.title} + '?\')'">
+                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

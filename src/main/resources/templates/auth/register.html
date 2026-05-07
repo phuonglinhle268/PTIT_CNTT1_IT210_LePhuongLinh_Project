@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Đăng ký | National Cinema</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f; --bg-2: #111118; --bg-3: #1a1a24;
+      --border: rgba(255,255,255,0.07); --border-hi: rgba(255,255,255,0.15);
+      --gold: #e8b84b; --red: #e84b4b;
+      --text: #f0eeea; --text-2: #9b9790; --text-3: #5c5a56;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .auth-card {
+      width: 100%; max-width: 500px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+    }
+    .brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem; letter-spacing: 3px;
+      color: var(--gold); margin-bottom: 1.5rem;
+    }
+    .auth-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem; letter-spacing: 1px; margin-bottom: 0.25rem;
+    }
+    .auth-subtitle { color: var(--text-2); font-size: 0.875rem; margin-bottom: 1.75rem; }
+
+    .divider {
+      height: 1px; background: var(--border);
+      margin: 1.25rem 0;
+    }
+    .section-label {
+      font-size: 0.72rem; font-weight: 700; color: whitesmoke;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      margin-bottom: 1rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 0.4rem;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--bg-3); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: inherit; font-size: 0.9rem;
+      padding: 0.65rem 0.9rem; outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-control:focus { border-color: var(--gold); }
+    .form-control::placeholder { color: var(--text-3); }
+    .form-control.is-invalid { border-color: var(--red); }
+    .field-error { color: var(--red); font-size: 0.76rem; margin-top: 0.3rem; }
+
+    .alert {
+      padding: 0.75rem 1rem; border-radius: 8px;
+      font-size: 0.85rem; margin-bottom: 1.25rem;
+    }
+    .alert-error { background: rgba(232,75,75,0.1); border: 1px solid rgba(232,75,75,0.3); color: var(--red); }
+
+    .btn-submit {
+      width: 100%; padding: 0.8rem;
+      background: var(--gold); color: #0a0a0f;
+      border: none; border-radius: 8px;
+      font-family: inherit; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; margin-top: 0.75rem;
+      transition: opacity 0.15s;
+    }
+    .btn-submit:hover { opacity: 0.88; }
+
+    .auth-footer { margin-top: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--text-2); }
+    .auth-footer a { color: var(--gold); }
+
+    .password-hint {
+      font-size: 0.76rem; color: var(--text-3); margin-top: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-card">
+  <div class="brand">NATIONALCINEMA</div>
+  <div class="auth-title">Tạo tài khoản</div>
+  <div class="auth-subtitle">Tham gia để đặt vé dễ dàng hơn</div>
+
+  <div th:if="${errorMsg}" class="alert alert-error" th:text="${errorMsg}"></div>
+
+  <form th:action="@{/auth/register}" method="post" th:object="${registerRequest}">
+
+    <div class="section-label">Thông tin đăng nhập</div>
+
+    <div class="form-group">
+      <label class="form-label" for="username">Username</label>
+      <input type="text" id="username"
+             th:field="*{username}"
+             th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+             class="form-control"
+             placeholder="Tối thiểu 4 ký tự"/>
+      <div th:if="${#fields.hasErrors('username')}" class="field-error" th:errors="*{username}"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Email</label>
+      <input type="email" id="email"
+             th:field="*{email}"
+             th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+             class="form-control"
+             placeholder="example@email.com"/>
+      <div th:if="${#fields.hasErrors('email')}" class="field-error" th:errors="*{email}"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Mật khẩu</label>
+      <input type="password" id="password"
+             th:field="*{password}"
+             th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+             class="form-control"
+             placeholder="Tối thiểu 6 ký tự"/>
+      <div th:if="${#fields.hasErrors('password')}" class="field-error" th:errors="*{password}"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="confirmPassword">Nhập lại mật khẩu</label>
+      <input type="password" id="confirmPassword"
+             th:field="*{confirmPassword}"
+             th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'"
+             class="form-control"/>
+      <div th:if="${#fields.hasErrors('confirmPassword')}" class="field-error" th:errors="*{confirmPassword}"></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Thông tin cá nhân</div>
+
+    <div class="form-group">
+      <label class="form-label" for="fullname">Họ và tên</label>
+      <input type="text" id="fullname"
+             th:field="*{fullname}"
+             th:classappend="${#fields.hasErrors('fullname')} ? 'is-invalid'"
+             class="form-control"
+             placeholder="Nguyễn Văn A"/>
+      <div th:if="${#fields.hasErrors('fullname')}" class="field-error" th:errors="*{fullname}"></div>
+    </div>
+
+    <button type="submit" class="btn-submit">Đăng ký</button>
+  </form>
+
+  <div class="auth-footer">
+    Đã có tài khoản? <a th:href="@{/auth/login}">Đăng nhập</a>
+  </div>
+</div>
+
+</body>
+</html>

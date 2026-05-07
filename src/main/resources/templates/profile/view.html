@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hồ sơ')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Hồ sơ cá nhân</div>
+            <div class="page-subtitle">Thông tin tài khoản của bạn</div>
+        </div>
+    </div>
+
+    <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+    <div th:if="${errorMsg}"   class="alert alert-error"   th:text="${errorMsg}"></div>
+
+    <div style="display:grid;grid-template-columns:260px 1fr;gap:1.5rem;align-items:start;">
+
+        <!-- Avatar card -->
+        <div class="card" style="text-align:center;">
+            <div style="margin-bottom:1.25rem;">
+                <img th:if="${profile.avatar != null}"
+                     th:src="${profile.avatar}"
+                     style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--border-hi);margin:0 auto;display:block;"/>
+                <div th:unless="${profile.avatar != null}"
+                     style="width:100px;height:100px;border-radius:50%;background:var(--bg-3);border:3px solid var(--border-hi);margin:0 auto;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);"
+                     th:text="${#strings.substring(profile.fullname,0,1)}">U</div>
+            </div>
+            <div style="font-weight:600;font-size:1rem;" th:text="${profile.fullname}"></div>
+            <div style="margin-top:0.25rem;">
+                <span class="badge"
+                      th:classappend="${user.role.name() == 'ADMIN'} ? 'badge-gold' : (${user.role.name() == 'STAFF'} ? 'badge-green' : 'badge-gray')"
+                      th:text="${user.role.name()}"></span>
+            </div>
+            <div style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-3);"
+                 th:if="${user.createdAt != null}"
+                 th:text="'Tham gia: ' + ${#temporals.format(user.createdAt,'dd/MM/yyyy')}"></div>
+
+            <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;">
+                <div style="font-size:0.75rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">Đổi ảnh đại diện</div>
+                <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" id="avatarFile" accept="image/*"
+                           style="display:none;" onchange="this.form.submit()"/>
+                    <label for="avatarFile"
+                           style="display:block;padding:0.5rem;background:var(--bg-3);border:1px dashed var(--border-hi);border-radius:8px;font-size:0.8rem;color:var(--text-2);cursor:pointer;">
+                        Chọn ảnh (tối đa 2MB)
+                    </label>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info card -->
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+                <div style="font-size:0.75rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;">Thông tin chi tiết</div>
+                <a th:href="@{/profile/edit}" class="btn btn-ghost btn-sm">Chỉnh sửa</a>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+                <div>
+                    <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Username</div>
+                    <div style="color:var(--text);font-weight:500;" th:text="${user.username}">-</div>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Email</div>
+                    <div style="color:var(--text);font-weight:500;" th:text="${user.email}">-</div>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Họ và tên</div>
+                    <div style="color:var(--text);font-weight:500;" th:text="${profile.fullname}">-</div>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Số điện thoại</div>
+                    <div style="color:var(--text);font-weight:500;" th:text="${profile.phone != null ? profile.phone : '—'}">-</div>
+                </div>
+                <div>
+                    <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Giới tính</div>
+                    <div style="color:var(--text);font-weight:500;"
+                         th:text="${profile.gender != null ? (profile.gender.name() == 'MALE' ? 'Nam' : (profile.gender.name() == 'FEMALE' ? 'Nữ' : 'Khác')) : '—'}">-</div>
+                </div>
+                <div style="grid-column:span 2;">
+                    <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;">Địa chỉ</div>
+                    <div style="color:var(--text);font-weight:500;" th:text="${profile.address != null ? profile.address : '—'}">-</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

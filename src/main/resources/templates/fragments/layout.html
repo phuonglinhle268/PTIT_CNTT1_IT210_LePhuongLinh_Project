@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title} + ' | National Cinema'">National Cinema</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+    <style>
+        :root {
+            --bg: #0a0a0f; --bg-2: #111118; --bg-3: #1a1a24;
+            --border: rgba(255,255,255,0.07); --border-hi: rgba(255,255,255,0.15);
+            --gold: #e8b84b; --red: #e84b4b; --green: #4be88a;
+            --text: #f0eeea; --text-2: #9b9790; --text-3: #5c5a56;
+            --radius: 10px; --radius-lg: 16px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; line-height: 1.6; min-height: 100vh; }
+        a { color: var(--gold); text-decoration: none; }
+        a:hover { color: var(--text); }
+        img { max-width: 100%; display: block; }
+
+        /* NAVBAR */
+        .navbar {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem; height: 60px;
+            background: rgba(10,10,15,0.92); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+        .navbar-brand { font-family: 'Nunito', sans-serif; font-size: 1.6rem; letter-spacing: 2px; color: var(--gold); }
+        .navbar-brand span { color: var(--text-2); }
+        .navbar-nav { display: flex; align-items: center; gap: 0.25rem; }
+        .nav-link { padding: 0.4rem 0.9rem; border-radius: var(--radius); color: var(--text-2); font-size: 0.875rem; font-weight: 500; transition: background 0.15s, color 0.15s; }
+        .nav-link:hover { background: var(--bg-3); color: var(--text); }
+        .navbar-user { display: flex; align-items: center; gap: 0.75rem; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-hi); }
+        .user-avatar-placeholder { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-3); border: 2px solid var(--border-hi); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--text-2); font-weight: 600; }
+        .btn-logout { background: none; border: 1px solid var(--border); color: var(--text-2); padding: 0.3rem 0.8rem; border-radius: var(--radius); font-size: 0.8rem; cursor: pointer; font-family: inherit; transition: border-color 0.15s, color 0.15s; }
+        .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+        /* LAYOUT */
+        .main-wrap { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem; }
+        .page-header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: flex-end; }
+        .page-title { font-family: 'Nunito', sans-serif; font-size: 2rem; letter-spacing: 1px; }
+        .page-subtitle { color: var(--text-2); font-size: 0.875rem; margin-top: 0.25rem; }
+
+        /* CARD */
+        .card { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; }
+        .card-sm { padding: 1.1rem; }
+
+        /* FORM */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+        .form-control { width: 100%; background: var(--bg-3); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: inherit; font-size: 0.9rem; padding: 0.65rem 0.9rem; outline: none; transition: border-color 0.15s; }
+        .form-control:focus { border-color: var(--gold); }
+        .form-control::placeholder { color: var(--text-3); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        select.form-control option { background: var(--bg-3); }
+        .form-control.is-invalid { border-color: var(--red); }
+        .field-error { color: var(--red); font-size: 0.78rem; margin-top: 0.3rem; }
+        .check-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .check-label { display: flex; align-items: center; gap: 0.4rem; background: var(--bg-3); border: 1px solid var(--border); border-radius: 6px; padding: 0.3rem 0.7rem; font-size: 0.82rem; color: var(--text-2); cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+        .check-label:hover { border-color: var(--border-hi); color: var(--text); }
+        .check-label input { display: none; }
+        .check-label.checked { border-color: var(--gold); color: var(--gold); }
+
+        /* BUTTONS */
+        .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.25rem; border-radius: var(--radius); font-family: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; transition: opacity 0.15s, transform 0.1s; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--gold); color: #0a0a0f; }
+        .btn-primary:hover { opacity: 0.9; color: #0a0a0f; }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-2); }
+        .btn-ghost:hover { border-color: var(--border-hi); color: var(--text); }
+        .btn-danger { background: rgba(232,75,75,0.15); color: var(--red); border: 1px solid rgba(232,75,75,0.3); }
+        .btn-danger:hover { background: rgba(232,75,75,0.25); }
+        .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+        .btn-row { display: flex; gap: 0.75rem; align-items: center; margin-top: 1.75rem; }
+
+        /* ALERTS */
+        .alert { padding: 0.8rem 1rem; border-radius: var(--radius); font-size: 0.875rem; margin-bottom: 1.25rem; }
+        .alert-success { background: rgba(75,232,138,0.1); border: 1px solid rgba(75,232,138,0.3); color: var(--green); }
+        .alert-error { background: rgba(232,75,75,0.1); border: 1px solid rgba(232,75,75,0.3); color: var(--red); }
+
+        /* TABLE */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        thead tr { border-bottom: 1px solid var(--border-hi); }
+        th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+        tbody tr:hover { background: var(--bg-3); }
+        td { padding: 0.85rem 1rem; color: var(--text-2); vertical-align: middle; }
+        td.td-main { color: var(--text); font-weight: 500; }
+
+        /* BADGE */
+        .badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge-green { background: rgba(75,232,138,0.12); color: var(--green); }
+        .badge-gold { background: rgba(232,184,75,0.12); color: var(--gold); }
+        .badge-red { background: rgba(232,75,75,0.12); color: var(--red); }
+        .badge-gray { background: rgba(155,151,144,0.12); color: var(--text-2); }
+
+        /* POSTER */
+        .poster { width: 44px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid var(--border); }
+        .poster-placeholder { width: 44px; height: 60px; background: var(--bg-3); border-radius: 5px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+        /* GRID */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; }
+        .span-2 { grid-column: span 2; }
+
+        @media (max-width: 700px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .span-2 { grid-column: span 1; }
+            .navbar { padding: 0 1rem; }
+            .main-wrap { padding: 1.5rem 1rem; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+        }
+    </style>
+</head>
+
+<nav th:fragment="navbar" class="navbar">
+    <a class="navbar-brand"
+       th:href="${session.LOGGED_IN_USER != null and session.LOGGED_IN_USER.role == 'ADMIN'} ? '/admin/dashboard' :
+                (${session.LOGGED_IN_USER != null and session.LOGGED_IN_USER.role == 'STAFF'} ? '/staff/dashboard' : '/movies')">
+        NATIONAL<span>CINEMA</span>
+    </a>
+
+    <div class="navbar-nav" th:if="${session.LOGGED_IN_USER != null}">
+        <th:block th:if="${session.LOGGED_IN_USER.role == 'CUSTOMER'}">
+            <a th:href="@{/movies}" class="nav-link">Phim</a>
+            <a th:href="@{/customer/bookings}" class="nav-link">Vé của tôi</a>
+        </th:block>
+        <th:block th:if="${session.LOGGED_IN_USER.role == 'STAFF'}">
+            <a th:href="@{/staff/dashboard}" class="nav-link">Trang chủ</a>
+            <a th:href="@{/staff/lookup}" class="nav-link">Tra cứu vé</a>
+        </th:block>
+        <th:block th:if="${session.LOGGED_IN_USER.role == 'ADMIN'}">
+            <a th:href="@{/admin/dashboard}" class="nav-link">Trang chủ</a>
+            <a th:href="@{/admin/movies}" class="nav-link">Phim</a>
+            <a th:href="@{/admin/showtimes}" class="nav-link">Suất chiếu</a>
+        </th:block>
+    </div>
+
+    <div class="navbar-user" th:if="${session.LOGGED_IN_USER != null}">
+        <img th:if="${session.LOGGED_IN_USER.avatar != null}"
+             th:src="${session.LOGGED_IN_USER.avatar}" class="user-avatar" alt="avatar"/>
+        <div th:unless="${session.LOGGED_IN_USER.avatar != null}"
+             class="user-avatar-placeholder"
+             th:text="${#strings.substring(session.LOGGED_IN_USER.fullname, 0, 1)}">U</div>
+        <a th:href="@{/profile}" class="nav-link" th:text="${session.LOGGED_IN_USER.fullname}">Tên</a>
+        <form th:action="@{/auth/logout}" method="get">
+            <button type="submit" class="btn-logout">Đăng xuất</button>
+        </form>
+    </div>
+</nav>
+
+</html>

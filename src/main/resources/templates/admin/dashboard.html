@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-subtitle"
+                 th:text="'Xin chào, ' + ${session.LOGGED_IN_USER.fullname} + ' — Hệ thống National Cinema'"></div>
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; margin-bottom:2.5rem;">
+
+        <div class="card" style="border-left:3px solid var(--gold);">
+            <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Tổng phim</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);line-height:1;"
+                 th:text="${totalMovies}">0</div>
+            <div style="font-size:0.78rem;color:var(--text-3);margin-top:0.25rem;">bộ phim trong hệ thống</div>
+        </div>
+
+        <div class="card" style="border-left:3px solid #4be88a;">
+            <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Khách hàng</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#4be88a;line-height:1;"
+                 th:text="${totalCustomers}">0</div>
+            <div style="font-size:0.78rem;color:var(--text-3);margin-top:0.25rem;">tài khoản đã đăng ký</div>
+        </div>
+
+        <div class="card" style="border-left:3px solid #6b9fff;">
+            <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Đơn đặt vé</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#6b9fff;line-height:1;"
+                 th:text="${totalBookings}">0</div>
+            <div style="font-size:0.78rem;color:var(--text-3);margin-top:0.25rem;">đơn hàng</div>
+        </div>
+
+        <div class="card" style="border-left:3px solid var(--red);">
+            <div style="font-size:0.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Doanh thu</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--red);line-height:1;">0 ₫</div>
+            <div style="font-size:0.78rem;color:var(--text-3);margin-top:0.25rem;">tổng doanh thu</div>
+        </div>
+
+    </div>
+
+    <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1rem;">Truy cập nhanh</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.75rem;">
+
+        <a th:href="@{/admin/movies/create}" class="card card-sm"
+           style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;color:inherit;transition:border-color 0.15s;"
+           onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.5rem;">🎬</div>
+            <div>
+                <div style="font-weight:600;font-size:0.875rem;">Thêm phim</div>
+                <div style="font-size:0.75rem;color:var(--text-3);">Thêm phim mới</div>
+            </div>
+        </a>
+
+        <a th:href="@{/admin/movies}" class="card card-sm"
+           style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;color:inherit;transition:border-color 0.15s;"
+           onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.5rem;">📋</div>
+            <div>
+                <div style="font-weight:600;font-size:0.875rem;">Quản lý phim</div>
+                <div style="font-size:0.75rem;color:var(--text-3);">Xem danh sách</div>
+            </div>
+        </a>
+
+        <a th:href="@{/admin/showtimes}" class="card card-sm"
+           style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;color:inherit;transition:border-color 0.15s;"
+           onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.5rem;">🕐</div>
+            <div>
+                <div style="font-weight:600;font-size:0.875rem;">Suất chiếu</div>
+                <div style="font-size:0.75rem;color:var(--text-3);">Lên lịch chiếu</div>
+            </div>
+        </a>
+
+        <a th:href="@{/profile}" class="card card-sm"
+           style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;color:inherit;transition:border-color 0.15s;"
+           onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:1.5rem;">👤</div>
+            <div>
+                <div style="font-weight:600;font-size:0.875rem;">Hồ sơ</div>
+                <div style="font-size:0.75rem;color:var(--text-3);">Tài khoản của tôi</div>
+            </div>
+        </a>
+
+    </div>
+
+</div>
+</body>
+</html>

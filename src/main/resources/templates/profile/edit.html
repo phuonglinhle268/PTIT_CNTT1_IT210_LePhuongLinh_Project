@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chỉnh sửa hồ sơ')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Chỉnh sửa hồ sơ</div>
+            <div class="page-subtitle">Cập nhật thông tin cá nhân</div>
+        </div>
+    </div>
+
+    <div th:if="${errorMsg}" class="alert alert-error" th:text="${errorMsg}"></div>
+
+    <div style="max-width:560px;">
+        <div class="card">
+            <form th:action="@{/profile/edit}" method="post" th:object="${profileRequest}">
+                <div class="form-group">
+                    <label class="form-label" for="fullname">Họ và tên</label>
+                    <input type="text" id="fullname" th:field="*{fullname}"
+                           th:classappend="${#fields.hasErrors('fullname')} ? 'is-invalid'"
+                           class="form-control" placeholder="Nguyễn Văn A"/>
+                    <div th:if="${#fields.hasErrors('fullname')}" class="field-error" th:errors="*{fullname}"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="phone">Số điện thoại</label>
+                    <input type="text" id="phone" th:field="*{phone}"
+                           th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'"
+                           class="form-control" placeholder="0912345678"/>
+                    <div th:if="${#fields.hasErrors('phone')}" class="field-error" th:errors="*{phone}"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="gender">Giới tính</label>
+                    <select id="gender" th:field="*{gender}" class="form-control">
+                        <option value="">-- Chọn giới tính --</option>
+                        <option value="MALE">Nam</option>
+                        <option value="FEMALE">Nữ</option>
+                        <option value="OTHER">Khác</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="address">Địa chỉ</label>
+                    <input type="text" id="address" th:field="*{address}"
+                           th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'"
+                           class="form-control" placeholder="123 Đường ABC, Quận 1"/>
+                    <div th:if="${#fields.hasErrors('address')}" class="field-error" th:errors="*{address}"></div>
+                </div>
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    <a th:href="@{/profile}" class="btn btn-ghost">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
