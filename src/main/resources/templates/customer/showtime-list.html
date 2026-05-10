@@ -1,0 +1,58 @@
+<!-- ═══════════════════════════ showtime-list.html ═══════════════════════════ -->
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chọn suất chiếu')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Chọn suất chiếu</div>
+            <div class="page-subtitle">Chọn giờ chiếu phù hợp</div>
+        </div>
+        <a th:href="@{/movies}" class="btn btn-ghost">← Danh sách phim</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(showtimes)}"
+         style="text-align:center;padding:4rem 2rem;color:var(--text-3);">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🎬</div>
+        <div>Hiện chưa có suất chiếu nào cho phim này.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;">
+        <div th:each="st : ${showtimes}" class="card"
+             style="transition:border-color 0.18s,transform 0.18s;"
+             onmouseover="this.style.borderColor='var(--border-hi)';this.style.transform='translateY(-2px)'"
+             onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+                <div style="font-weight:600;font-size:0.95rem;" th:text="${st.movie.title}"></div>
+                <span class="badge"
+                      th:classappend="${st.status.name() == 'SOLD_OUT'} ? 'badge-red' : 'badge-green'"
+                      th:text="${st.status.name() == 'SOLD_OUT'} ? 'Hết vé' : 'Còn vé'"></span>
+            </div>
+
+            <div style="font-size:0.85rem;color:var(--text-2);margin-bottom:0.2rem;">
+                🕐 <strong th:text="${#temporals.format(st.startTime,'HH:mm')}"></strong>
+                · <span th:text="${#temporals.format(st.startTime,'dd/MM/yyyy')}"></span>
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-2);margin-bottom:0.75rem;">
+                🎬 <span th:text="${st.room.roomName}"></span>
+                · <span th:text="${st.room.roomType}"></span>
+            </div>
+            <div style="font-size:0.95rem;font-weight:700;color:var(--gold);margin-bottom:1rem;"
+                 th:text="'Từ ' + ${#numbers.formatDecimal(st.basePrice,0,'COMMA',0,'POINT')} + ' ₫'"></div>
+
+            <!-- SOLD_OUT: hiển thị sơ đồ ghế nhưng không cho đặt (CORE-08) -->
+            <a th:href="@{/customer/booking/{id}(id=${st.showtimeId})}"
+               th:classappend="${st.status.name() == 'SOLD_OUT'} ? 'btn-ghost' : 'btn-primary'"
+               class="btn" style="width:100%;justify-content:center;"
+               th:text="${st.status.name() == 'SOLD_OUT'} ? 'Xem sơ đồ ghế' : 'Chọn ghế →'">
+            </a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -48,23 +48,33 @@
                     <td th:text="${movie.director}"></td>
                     <td th:text="${movie.duration} + ' phút'"></td>
                     <td>
-                            <span th:each="genre : ${movie.genres}" class="badge badge-gray"
-                                  th:text="${genre.genreName}" style="margin-right:2px;"></span>
+                        <span th:each="genre : ${movie.genres}" class="badge badge-gray"
+                              th:text="${genre.genreName}" style="margin-right:2px;"></span>
                         <span th:if="${movie.genres.empty}" style="color:var(--text-3);">—</span>
                     </td>
                     <td>
-                            <span class="badge"
-                                  th:classappend="${movie.status.name() == 'NOW_SHOWING'} ? 'badge-green' : (${movie.status.name() == 'COMING_SOON'} ? 'badge-gold' : 'badge-red')"
-                                  th:text="${movie.status.name() == 'NOW_SHOWING'} ? 'Đang chiếu' : (${movie.status.name() == 'COMING_SOON'} ? 'Sắp chiếu' : 'Dừng chiếu')"></span>
+                        <span class="badge"
+                              th:classappend="${movie.status.name() == 'NOW_SHOWING'} ? 'badge-green' :
+                                             (${movie.status.name() == 'COMING_SOON'} ? 'badge-gold' : 'badge-red')"
+                              th:text="${movie.status.name() == 'NOW_SHOWING'} ? 'Đang chiếu' :
+                                       (${movie.status.name() == 'COMING_SOON'} ? 'Sắp chiếu' : 'Dừng chiếu')">
+                        </span>
                     </td>
                     <td>
                         <div style="display:flex;gap:0.5rem;">
                             <a th:href="@{/admin/movies/{id}/edit(id=${movie.movieId})}"
                                class="btn btn-ghost btn-sm">Sửa</a>
+
+                            <!--
+                                FIX: Dùng data-title để truyền tên phim vào JS,
+                                tránh Thymeleaf phải concat string trong attribute onsubmit/onclick.
+                                Button gọi hàm confirmDelete(this) → lấy title từ data-title của form.
+                            -->
                             <form th:action="@{/admin/movies/{id}/delete(id=${movie.movieId})}"
                                   method="post"
-                                  th:onsubmit="'return confirm(\'Xóa phim ' + ${movie.title} + '?\')'">
-                                <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                                  th:data-title="${movie.title}">
+                                <button type="button" class="btn btn-danger btn-sm"
+                                        onclick="confirmDelete(this.closest('form'))">Xóa</button>
                             </form>
                         </div>
                     </td>
@@ -75,5 +85,15 @@
     </div>
 
 </div>
+
+<script>
+    function confirmDelete(form) {
+        var title = form.getAttribute('data-title') || 'phim này';
+        if (confirm('Xóa phim "' + title + '"?')) {
+            form.submit();
+        }
+    }
+</script>
+
 </body>
 </html>

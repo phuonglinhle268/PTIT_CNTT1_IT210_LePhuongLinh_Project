@@ -1,43 +1,39 @@
 package org.example.java_web_project.model;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.List;
+import lombok.*;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "seats", uniqueConstraints = @UniqueConstraint(columnNames = {"room_id", "seat_row", "seat_number"}))
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
+@Table(name = "seats",
+        uniqueConstraints = @UniqueConstraint(
+                name = "unique_seat_in_room",
+                columnNames = {"room_id", "seat_row", "seat_number"}
+        ))
+@NoArgsConstructor @AllArgsConstructor @Getter @Setter
 public class Seat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "seat_id")
     private Integer seatId;
 
-    @ManyToOne
-    @JoinColumn(name = "room_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 
-    @Column(name = "seat_row")
+    @Column(name = "seat_row", length = 1)
     private String seatRow;
 
-    @Column(name = "seat_number")
+    @Column(name = "seat_number", nullable = false)
     private Integer seatNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "seat_type")
     private SeatType seatType;
 
-    @Column(name = "price_extra")
-    private Double priceExtra;
+    @Column(name = "price_extra", precision = 10, scale = 2)
+    private BigDecimal priceExtra = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "seat")
-    private List<Ticket> tickets;
+    public enum SeatType { NORMAL, VIP, COUPLE }
 }

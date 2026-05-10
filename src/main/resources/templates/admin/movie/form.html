@@ -90,18 +90,31 @@
         <div class="card">
           <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.25rem;">Trạng thái & Phân loại</div>
 
+          <!--
+            FIX: Dùng th:value="${s.name()}" thay vì th:value="${s}"
+            Thymeleaf so khớp th:field (enum) với option value bằng chuỗi .name()
+            Nếu dùng th:value="${s}" (object), Thymeleaf không nhận ra → không selected
+          -->
           <div class="form-group">
             <label class="form-label" for="status">Trạng thái *</label>
             <select id="status" th:field="*{status}"
                     th:classappend="${#fields.hasErrors('status')} ? 'is-invalid'"
                     class="form-control">
               <option value="">-- Chọn trạng thái --</option>
-              <option th:each="s : ${statuses}" th:value="${s}"
-                      th:text="${s.name() == 'NOW_SHOWING'} ? 'Đang chiếu' : (${s.name() == 'COMING_SOON'} ? 'Sắp chiếu' : 'Dừng chiếu')"></option>
+              <option th:each="s : ${statuses}"
+                      th:value="${s.name()}"
+                      th:selected="${movieRequest.status != null and movieRequest.status == s}"
+                      th:text="${s.name() == 'NOW_SHOWING'} ? 'Đang chiếu' :
+                               (${s.name() == 'COMING_SOON'} ? 'Sắp chiếu' : 'Dừng chiếu')">
+              </option>
             </select>
             <div th:if="${#fields.hasErrors('status')}" class="field-error" th:errors="*{status}"></div>
           </div>
 
+          <!--
+            FIX: ageRating dùng th:field để Thymeleaf tự so khớp value string → selected đúng
+            Các option value phải khớp chính xác với dữ liệu trong DB (P, C13, C16, C18)
+          -->
           <div class="form-group">
             <label class="form-label" for="ageRating">Phân loại tuổi</label>
             <select id="ageRating" th:field="*{ageRating}" class="form-control">
@@ -130,7 +143,9 @@
             <div th:if="${#fields.hasErrors('poster')}" class="field-error" th:errors="*{poster}"></div>
             <img id="posterPreview"
                  th:src="${movieRequest.poster}"
-                 th:style="${movieRequest.poster != null and !#strings.isEmpty(movieRequest.poster)} ? 'width:80px;border-radius:6px;border:1px solid var(--border);margin-top:0.75rem;' : 'display:none'"
+                 th:style="${movieRequest.poster != null and !#strings.isEmpty(movieRequest.poster)}
+                           ? 'width:80px;border-radius:6px;border:1px solid var(--border);margin-top:0.75rem;'
+                           : 'display:none'"
                  onerror="this.style.display='none'"/>
           </div>
 

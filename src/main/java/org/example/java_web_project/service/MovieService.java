@@ -9,6 +9,7 @@ import org.example.java_web_project.repository.MovieRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -32,6 +33,7 @@ public class MovieService {
     // CORE-04: Thêm phim mới
     @Transactional
     public void createMovie(MovieDTO req) {
+        validateStatusVsReleaseDate(req.getStatus(), req.getReleaseDate());
         Movie movie = new Movie();
         mapRequestToMovie(req, movie);
         movieRepository.save(movie);
@@ -40,6 +42,7 @@ public class MovieService {
     // CORE-04: Cập nhật phim
     @Transactional
     public void updateMovie(Integer id, MovieDTO req) {
+        validateStatusVsReleaseDate(req.getStatus(), req.getReleaseDate());
         Movie movie = getMovieById(id);
         mapRequestToMovie(req, movie);
         movieRepository.save(movie);
@@ -55,6 +58,31 @@ public class MovieService {
     // Lấy danh sách genre để hiển thị form (Admin chọn khi tạo/sửa phim)
     public List<Genre> getAllGenres() {
         return genreRepository.findAll();
+    }
+
+    /**
+     * Validate logic trạng thái vs ngày công chiếu:
+     * - COMING_SOON yêu cầu releaseDate phải còn trong tương lai (> hôm nay)
+     * - NOW_SHOWING yêu cầu releaseDate không được ở tương lai (phải <= hôm nay)
+     */
+    private void validateStatusVsReleaseDate(Movie.Status status, LocalDate releaseDate) {
+        if (status == null) return;
+        LocalDate today = LocalDate.now();
+
+        if (status == Movie.Status.COMING_SOON) {
+            if (releaseDate == null || !releaseDate.isAfter(today)) {
+                throw new RuntimeException(
+                        "Phim 'Sắp chiếu' phải có ngày công chiếu ở tương lai (sau ngày " + today + ").");
+            }
+        }
+
+        if (status == Movie.Status.NOW_SHOWING) {
+            if (releaseDate != null && releaseDate.isAfter(today)) {
+                throw new RuntimeException(
+                        "Phim 'Đang chiếu' không thể có ngày công chiếu ở tương lai. " +
+                                "Vui lòng chọn trạng thái 'Sắp chiếu' hoặc điều chỉnh ngày công chiếu.");
+            }
+        }
     }
 
     // Map dữ liệu từ request vào entity (dùng chung cho create và update)

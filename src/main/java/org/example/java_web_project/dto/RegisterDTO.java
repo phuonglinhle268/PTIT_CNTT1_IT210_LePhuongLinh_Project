@@ -14,6 +14,10 @@ public class RegisterDTO {
 
     @NotBlank(message = "Username không được để trống")
     @Size(min = 4, max = 50, message = "Username từ 4-50 ký tự")
+    @Pattern(
+            regexp = "^[a-z0-9]+$",
+            message = "Username chỉ được chứa chữ thường không dấu và số, không chứa khoảng trắng, ký tự đặc biệt"
+    )
     private String username;
 
     @NotBlank(message = "Email không được để trống")

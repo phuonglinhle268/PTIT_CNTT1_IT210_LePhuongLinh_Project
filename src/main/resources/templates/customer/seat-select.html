@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chọn ghế')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title" th:text="${showtime.movie.title}"></div>
+            <div class="page-subtitle"
+                 th:text="${#temporals.format(showtime.startTime,'HH:mm - dd/MM/yyyy')} + ' · ' + ${showtime.room.roomName}">
+            </div>
+        </div>
+        <a th:href="@{/customer/showtimes/{id}(id=${showtime.movie.movieId})}"
+           class="btn btn-ghost">← Chọn suất khác</a>
+    </div>
+
+    <div th:if="${errorMsg}" class="alert alert-error" th:text="${errorMsg}"></div>
+
+    <div class="grid-2" style="gap:2rem;align-items:start;">
+
+        <!-- Sơ đồ ghế -->
+        <div>
+            <div style="text-align:center;margin-bottom:1.5rem;">
+                <div style="background:linear-gradient(var(--border-hi),var(--border));height:6px;border-radius:3px;margin-bottom:0.4rem;"></div>
+                <span style="font-size:0.72rem;color:var(--text-3);letter-spacing:0.15em;">MÀN HÌNH</span>
+            </div>
+
+            <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:1.25rem;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-2);">
+                    <div style="width:14px;height:14px;border-radius:3px;background:var(--bg-3);border:1px solid rgba(255,255,255,0.15);"></div>Thường
+                </div>
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-2);">
+                    <div style="width:14px;height:14px;border-radius:3px;background:rgba(232,184,75,0.2);border:1px solid var(--gold);"></div>VIP (+20k)
+                </div>
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-2);">
+                    <div style="width:14px;height:14px;border-radius:3px;background:rgba(107,159,255,0.2);border:1px solid #6b9fff;"></div>Couple (+30k)
+                </div>
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-2);">
+                    <div style="width:14px;height:14px;border-radius:3px;background:rgba(92,90,86,0.4);"></div>Đã đặt
+                </div>
+                <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-2);">
+                    <div style="width:14px;height:14px;border-radius:3px;background:var(--gold);"></div>Đang chọn
+                </div>
+            </div>
+
+            <div id="seatData">
+                <span th:each="s : ${seatMap}"
+                      th:data-id="${s.seatId}"
+                      th:data-row="${s.seatRow}"
+                      th:data-num="${s.seatNumber}"
+                      th:data-type="${s.seatType}"
+                      th:data-booked="${s.booked}"
+                      style="display:none;"></span>
+            </div>
+            <div id="seatGrid" style="overflow-x:auto;padding-bottom:0.5rem;"></div>
+        </div>
+
+        <!-- Panel xác nhận -->
+        <div class="card" style="position:sticky;top:80px;">
+
+            <!-- Countdown 10 phút — chỉ có ý nghĩa UX, server tự hủy sau 10 phút -->
+            <div id="countdownBox"
+                 style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;
+                        padding:0.55rem 0.8rem;background:rgba(232,184,75,0.07);
+                        border:1px solid rgba(232,184,75,0.2);border-radius:var(--radius);">
+                <span style="font-size:1rem;">⏱️</span>
+                <span style="font-size:0.8rem;color:var(--text-2);">
+                    Thời gian chọn ghế: <strong id="countdown" style="color:var(--gold);">10:00</strong>
+                </span>
+            </div>
+
+            <div th:if="${soldOut}"
+                 style="text-align:center;padding:1.5rem 0;color:var(--red);">
+                <div style="font-size:2rem;margin-bottom:0.5rem;">🎟️</div>
+                <div style="font-weight:700;">Suất chiếu đã hết vé</div>
+                <div style="font-size:0.82rem;color:var(--text-2);margin-top:0.5rem;">Tất cả ghế đã được đặt</div>
+            </div>
+
+            <div th:unless="${soldOut}">
+                <div style="font-weight:700;font-size:1rem;margin-bottom:1rem;">Xác nhận đặt vé</div>
+
+                <div style="font-size:0.82rem;color:var(--text-2);margin-bottom:0.25rem;">
+                    Ghế đã chọn: <span id="selectedLabel" style="color:var(--text);font-weight:600;">Chưa chọn</span>
+                </div>
+                <div style="font-size:0.82rem;color:var(--text-2);margin-bottom:1rem;">
+                    Tổng tiền: <span id="totalLabel" style="color:var(--gold);font-weight:700;font-size:1.1rem;">0 ₫</span>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;
+                            padding:0.6rem 0.8rem;background:rgba(232,184,75,0.07);
+                            border:1px solid rgba(232,184,75,0.2);border-radius:var(--radius);">
+                    <span style="font-size:1.1rem;">💳</span>
+                    <span style="font-size:0.8rem;color:var(--text-2);">
+                        Thanh toán qua <strong style="color:var(--gold);">VNPay</strong>
+                    </span>
+                </div>
+
+                <form action="/customer/booking/confirm" method="post" id="bookingForm">
+                    <input type="hidden" name="showtimeId" th:value="${showtime.showtimeId}"/>
+                    <input type="hidden" name="paymentMethod" value="VNPAY"/>
+                    <div id="seatInputs"></div>
+
+                    <button type="submit" id="submitBtn"
+                            class="btn btn-primary"
+                            style="width:100%;justify-content:center;padding:0.75rem;"
+                            disabled>
+                        Thanh toán với VNPay →
+                    </button>
+                </form>
+
+                <div style="font-size:0.72rem;color:var(--text-3);text-align:center;margin-top:0.75rem;">
+                    Bạn sẽ được chuyển đến cổng thanh toán VNPay an toàn
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // ── Countdown 10 phút ────────────────────────────────────────────────────
+    let totalSeconds = 10 * 60;
+    const countdownEl = document.getElementById('countdown');
+    const countdownBox = document.getElementById('countdownBox');
+
+    const timer = setInterval(() => {
+        totalSeconds--;
+        const m = Math.floor(totalSeconds / 60);
+        const s = totalSeconds % 60;
+        countdownEl.textContent = m + ':' + String(s).padStart(2, '0');
+
+        // Đổi màu đỏ khi còn 2 phút
+        if (totalSeconds <= 120) {
+            countdownEl.style.color = 'var(--red)';
+            countdownBox.style.borderColor = 'rgba(232,75,75,0.3)';
+            countdownBox.style.background  = 'rgba(232,75,75,0.07)';
+        }
+
+        // Hết giờ: disable form và thông báo
+        if (totalSeconds <= 0) {
+            clearInterval(timer);
+            countdownEl.textContent = '0:00';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').textContent = 'Hết thời gian chọn ghế';
+
+            // Hiện overlay thông báo
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);' +
+                'display:flex;align-items:center;justify-content:center;z-index:999;';
+            overlay.innerHTML = `
+                <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);
+                            padding:2rem;text-align:center;max-width:320px;">
+                    <div style="font-size:2rem;margin-bottom:0.75rem;">⏰</div>
+                    <div style="font-weight:700;margin-bottom:0.5rem;">Hết thời gian chọn ghế</div>
+                    <div style="font-size:0.85rem;color:var(--text-2);margin-bottom:1.25rem;">
+                        Phiên chọn ghế đã hết 10 phút. Vui lòng chọn lại.
+                    </div>
+                    <button onclick="location.reload()"
+                            style="background:var(--gold);color:#0a0a0f;border:none;border-radius:var(--radius);
+                                   padding:0.6rem 1.5rem;font-weight:700;cursor:pointer;font-size:0.875rem;">
+                        Chọn lại ghế
+                    </button>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
+    }, 1000);
+
+    // ── Sơ đồ ghế ────────────────────────────────────────────────────────────
+    const BASE_PRICE  = /*[[${showtime.basePrice}]]*/ 0;
+    const PRICE_EXTRA = { NORMAL: 0, VIP: 20000, COUPLE: 30000 };
+
+    const rowMap = {};
+    document.querySelectorAll('#seatData span[data-id]').forEach(el => {
+        const row = el.dataset.row || '?';
+        if (!rowMap[row]) rowMap[row] = [];
+        rowMap[row].push({
+            id:     el.dataset.id,
+            num:    parseInt(el.dataset.num),
+            type:   el.dataset.type,
+            booked: el.dataset.booked === 'true'
+        });
+    });
+
+    const grid     = document.getElementById('seatGrid');
+    const selected = new Map();
+
+    Object.keys(rowMap).sort().forEach(rowLetter => {
+        const rowDiv = document.createElement('div');
+        rowDiv.style.cssText = 'display:flex;align-items:center;gap:5px;margin-bottom:5px;';
+
+        const lbl = document.createElement('span');
+        lbl.textContent = rowLetter;
+        lbl.style.cssText = 'width:16px;font-size:0.7rem;color:var(--text-3);flex-shrink:0;text-align:center;';
+        rowDiv.appendChild(lbl);
+
+        rowMap[rowLetter].sort((a, b) => a.num - b.num).forEach(seat => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = seat.num;
+            btn.title = rowLetter + seat.num + ' · ' + seat.type;
+
+            const base = 'width:30px;height:30px;border-radius:4px;border:1px solid;font-size:0.65rem;font-weight:600;transition:all 0.12s;';
+            const styles = {
+                NORMAL: 'background:var(--bg-3);border-color:rgba(255,255,255,0.15);color:var(--text-2);cursor:pointer;',
+                VIP:    'background:rgba(232,184,75,0.12);border-color:var(--gold);color:var(--gold);cursor:pointer;',
+                COUPLE: 'background:rgba(107,159,255,0.12);border-color:#6b9fff;color:#6b9fff;cursor:pointer;'
+            };
+
+            if (seat.booked) {
+                btn.style.cssText = base + 'background:rgba(92,90,86,0.35);border-color:rgba(92,90,86,0.5);color:var(--text-3);cursor:not-allowed;';
+                btn.disabled = true;
+            } else {
+                btn.style.cssText = base + (styles[seat.type] || styles.NORMAL);
+                btn.addEventListener('click', () => {
+                    // Không cho chọn khi hết giờ
+                    if (totalSeconds <= 0) return;
+                    toggleSeat(btn, seat);
+                });
+            }
+            rowDiv.appendChild(btn);
+        });
+        grid.appendChild(rowDiv);
+    });
+
+    function toggleSeat(btn, seat) {
+        const price = BASE_PRICE + (PRICE_EXTRA[seat.type] || 0);
+        const styles = {
+            NORMAL: { bg: 'var(--bg-3)', border: 'rgba(255,255,255,0.15)', color: 'var(--text-2)' },
+            VIP:    { bg: 'rgba(232,184,75,0.12)', border: 'var(--gold)',   color: 'var(--gold)'   },
+            COUPLE: { bg: 'rgba(107,159,255,0.12)', border: '#6b9fff',      color: '#6b9fff'       }
+        };
+
+        if (selected.has(seat.id)) {
+            selected.delete(seat.id);
+            const s = styles[seat.type] || styles.NORMAL;
+            btn.style.background = s.bg; btn.style.borderColor = s.border;
+            btn.style.color = s.color;   btn.style.boxShadow = '';
+        } else {
+            selected.set(seat.id, price);
+            btn.style.background = 'var(--gold)'; btn.style.borderColor = 'var(--gold)';
+            btn.style.color = '#0a0a0f';           btn.style.boxShadow = '0 0 6px rgba(232,184,75,0.45)';
+        }
+        updatePanel();
+    }
+
+    function updatePanel() {
+        const ids   = [...selected.keys()];
+        const total = [...selected.values()].reduce((a, b) => a + b, 0);
+
+        document.getElementById('selectedLabel').textContent = ids.length ? ids.length + ' ghế' : 'Chưa chọn';
+        document.getElementById('totalLabel').textContent    = total.toLocaleString('vi-VN') + ' ₫';
+        document.getElementById('submitBtn').disabled        = ids.length === 0 || totalSeconds <= 0;
+
+        const container = document.getElementById('seatInputs');
+        container.innerHTML = '';
+        ids.forEach(id => {
+            const inp = document.createElement('input');
+            inp.type = 'hidden'; inp.name = 'seatIds'; inp.value = id;
+            container.appendChild(inp);
+        });
+    }
+</script>
+</body>
+</html>

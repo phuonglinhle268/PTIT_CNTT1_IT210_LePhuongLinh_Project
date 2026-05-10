@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tra cứu vé')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Tra cứu vé</div>
+            <div class="page-subtitle">Xác nhận thanh toán hoặc in vé tại quầy</div>
+        </div>
+    </div>
+
+    <!-- Form tìm kiếm -->
+    <div style="max-width:560px;margin-bottom:2rem;">
+        <div class="card">
+            <form th:action="@{/staff/lookup}" method="get"
+                  style="display:flex;gap:0.75rem;align-items:flex-end;">
+                <div class="form-group" style="flex:1;margin-bottom:0;">
+                    <label class="form-label">Mã đặt vé</label>
+                    <input type="text" name="bookingCode" class="form-control"
+                           th:value="${bookingCode}"
+                           placeholder="VD: BKABCD1234"
+                           style="font-family:monospace;letter-spacing:0.08em;text-transform:uppercase;"
+                           oninput="this.value=this.value.toUpperCase()"/>
+                </div>
+                <button type="submit" class="btn btn-primary" style="flex-shrink:0;">Tra cứu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lỗi -->
+    <div th:if="${errorMsg}" class="alert alert-error" th:text="${errorMsg}"></div>
+
+    <!-- Kết quả -->
+    <div th:if="${booking != null}">
+        <div class="grid-2" style="gap:1.5rem;align-items:start;">
+
+            <!-- Hóa đơn -->
+            <div class="card">
+                <div style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;">🎫 Chi tiết hóa đơn</div>
+
+                <div style="margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);">
+                    <div style="font-size:1rem;font-weight:600;margin-bottom:0.4rem;"
+                         th:text="${booking.tickets[0].showtime.movie.title}"></div>
+                    <div style="font-size:0.85rem;color:var(--text-2);margin-bottom:0.2rem;">
+                        🕐 <span th:text="${#temporals.format(booking.tickets[0].showtime.startTime,'HH:mm - dd/MM/yyyy')}"></span>
+                    </div>
+                    <div style="font-size:0.85rem;color:var(--text-2);">
+                        🎬 <span th:text="${booking.tickets[0].showtime.room.roomName}"></span>
+                    </div>
+                </div>
+
+                <!-- Từng ghế -->
+                <div style="margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border);">
+                    <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);
+                                text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">
+                        Chi tiết ghế
+                    </div>
+                    <div th:each="t : ${booking.tickets}"
+                         style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:0.4rem;">
+                        <span>
+                            Ghế <strong th:text="${t.seat.seatRow} + ${t.seat.seatNumber}"></strong>
+                            <span class="badge badge-gray" style="margin-left:0.4rem;"
+                                  th:text="${t.seat.seatType}"></span>
+                            <span th:if="${t.ticketStatus.name() == 'CANCELLED'}"
+                                  class="badge badge-red" style="margin-left:0.3rem;">Đã hủy</span>
+                        </span>
+                        <span th:text="${#numbers.formatDecimal(t.ticketPrice,0,'COMMA',0,'POINT')} + ' ₫'"
+                              style="color:var(--text);font-weight:500;"></span>
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;">
+                    <span>Tổng cộng</span>
+                    <span style="color:var(--gold);"
+                          th:text="${#numbers.formatDecimal(booking.totalAmount,0,'COMMA',0,'POINT')} + ' ₫'"></span>
+                </div>
+            </div>
+
+            <!-- Thông tin đơn -->
+            <div class="card">
+                <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);
+                            text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;">
+                    Thông tin đơn
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.875rem;margin-bottom:1.25rem;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:var(--text-2);">Mã đặt vé</span>
+                        <code style="color:var(--gold);" th:text="${booking.bookingCode}"></code>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:var(--text-2);">Khách hàng</span>
+                        <span th:text="${booking.user.userProfile != null}
+                                       ? ${booking.user.userProfile.fullname}
+                                       : ${booking.user.username}"></span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:var(--text-2);">Ngày đặt</span>
+                        <span th:text="${#temporals.format(booking.bookingTime,'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:var(--text-2);">Thanh toán</span>
+                        <span class="badge"
+                              th:classappend="${booking.paymentStatus.name() == 'PAID'}     ? 'badge-green' :
+                                             (${booking.paymentStatus.name() == 'REFUNDED'} ? 'badge-gray'  :
+                                             (${booking.paymentStatus.name() == 'FAILED'}   ? 'badge-red'   : 'badge-gold'))"
+                              th:text="${booking.paymentStatus.name() == 'PAID'}     ? 'Đã thanh toán' :
+                                       (${booking.paymentStatus.name() == 'REFUNDED'} ? 'Đã hoàn tiền'  :
+                                       (${booking.paymentStatus.name() == 'FAILED'}   ? 'Thất bại'      : 'Chờ thanh toán'))">
+                        </span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:var(--text-2);">Trạng thái đơn</span>
+                        <span class="badge"
+                              th:classappend="${booking.bookingStatus.name() == 'CONFIRMED'} ? 'badge-green' :
+                                             (${booking.bookingStatus.name() == 'CANCELLED'} ? 'badge-red'   : 'badge-gold')"
+                              th:text="${booking.bookingStatus.name() == 'CONFIRMED'} ? 'Đã xác nhận' :
+                                       (${booking.bookingStatus.name() == 'CANCELLED'} ? 'Đã hủy'      : 'Chờ xử lý')">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Nút in vé (chỉ hiện khi CONFIRMED) -->
+                <div th:if="${booking.bookingStatus.name() == 'CONFIRMED'}"
+                     style="margin-top:0.5rem;">
+                    <button onclick="window.print()"
+                            class="btn btn-primary" style="width:100%;justify-content:center;">
+                        🖨️ In vé giấy
+                    </button>
+                </div>
+
+                <div th:if="${booking.bookingStatus.name() != 'CONFIRMED'}"
+                     style="padding:0.75rem;background:rgba(232,75,75,0.08);border:1px solid rgba(232,75,75,0.2);
+                            border-radius:var(--radius);font-size:0.82rem;color:var(--red);text-align:center;">
+                    Đơn này chưa được xác nhận thanh toán, không thể in vé.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

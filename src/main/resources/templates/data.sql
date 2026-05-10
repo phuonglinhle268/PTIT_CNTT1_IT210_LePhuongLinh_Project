@@ -64,3 +64,40 @@ INSERT IGNORE INTO movies (title, description, director, actors, duration, relea
 VALUES
     ('Avengers: Endgame', 'Trận chiến cuối cùng chống lại Thanos', 'Anthony Russo', 'Robert Downey Jr., Chris Evans', 180, '2019-04-26', 'https://tse1.mm.bing.net/th/id/OIP.QPzMe0bb0D6TEAp_OA2bFwHaEK?pid=Api&P=0&h=180', 'https://youtube.com/trailer', 'PG-13', NOW(), NOW(), 'NOW_SHOWING'),
     ('Inside Out 2', 'Cuộc phiêu lưu mới trong tâm trí', 'Kelsey Mann', 'Amy Poehler, Maya Hawke', 120, '2024-06-14', 'https://tse1.mm.bing.net/th/id/OIP.QPzMe0bb0D6TEAp_OA2bFwHaEK?pid=Api&P=0&h=180', 'https://youtube.com/trailer', 'PG', NOW(), NOW(), 'COMING_SOON');
+
+-- Sinh ghế tự động cho Phòng 1 (8 hàng A-H, 10 ghế/hàng)
+INSERT IGNORE INTO seats (room_id, seat_row, seat_number, seat_type, price_extra)
+SELECT r.room_id, rows.r, nums.n,
+       CASE WHEN rows.r IN ('D','E') THEN 'VIP' ELSE 'NORMAL' END,
+       CASE WHEN rows.r IN ('D','E') THEN 20000 ELSE 0 END
+FROM rooms r
+         JOIN (SELECT 'A' r UNION SELECT 'B' UNION SELECT 'C' UNION SELECT 'D'
+               UNION SELECT 'E' UNION SELECT 'F' UNION SELECT 'G' UNION SELECT 'H') rows
+JOIN (SELECT 1 n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
+      UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) nums
+WHERE r.room_name = 'Phòng 1';
+
+-- PHÒNG 2
+INSERT IGNORE INTO seats (room_id, seat_row, seat_number, seat_type, price_extra)
+SELECT r.room_id, rows.r, nums.n,
+       CASE WHEN rows.r IN ('D','E') THEN 'VIP' ELSE 'NORMAL' END,
+       CASE WHEN rows.r IN ('D','E') THEN 20000 ELSE 0 END
+FROM rooms r
+         JOIN (SELECT 'A' r UNION SELECT 'B' UNION SELECT 'C' UNION SELECT 'D'
+               UNION SELECT 'E' UNION SELECT 'F' UNION SELECT 'G' UNION SELECT 'H') rows
+JOIN (SELECT 1 n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
+      UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) nums
+WHERE r.room_name = 'Phòng 2';
+
+-- PHÒNG 3
+INSERT IGNORE INTO seats (room_id, seat_row, seat_number, seat_type, price_extra)
+SELECT r.room_id, rows.r, nums.n,
+       CASE WHEN rows.r IN ('D','E') THEN 'VIP' ELSE 'NORMAL' END,
+       CASE WHEN rows.r IN ('D','E') THEN 20000 ELSE 0 END
+FROM rooms r
+         JOIN (SELECT 'A' r UNION SELECT 'B' UNION SELECT 'C' UNION SELECT 'D'
+               UNION SELECT 'E' UNION SELECT 'F' UNION SELECT 'G' UNION SELECT 'H') rows
+JOIN (SELECT 1 n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
+      UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) nums
+WHERE r.room_name = 'Phòng 3';
+

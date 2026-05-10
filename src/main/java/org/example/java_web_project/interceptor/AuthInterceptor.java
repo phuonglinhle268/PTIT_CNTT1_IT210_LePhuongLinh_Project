@@ -59,6 +59,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 || uri.startsWith("/images/")
                 || uri.startsWith("/uploads/")
                 || uri.startsWith("/403")
-                || uri.startsWith("/movies");
+                || uri.startsWith("/movies")
+                || uri.startsWith("/payment/") ;  // VNPay callback không cần login
     }
 }

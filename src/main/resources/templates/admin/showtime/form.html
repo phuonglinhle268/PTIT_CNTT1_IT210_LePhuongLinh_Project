@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Suất chiếu')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <!-- Edit mode: có biến showtime; Create mode: không có -->
+            <div class="page-title"
+                 th:text="${showtime != null} ? 'Chỉnh sửa suất chiếu' : 'Tạo suất chiếu'"></div>
+            <div class="page-subtitle"
+                 th:text="${showtime != null}
+                     ? 'Suất chiếu #' + ${showtime.showtimeId} + ' · ' + ${showtime.movie.title}
+                     : 'Lên lịch chiếu phim cho phòng'"></div>
+        </div>
+        <a th:href="@{/admin/showtimes}" class="btn btn-ghost">← Quay lại</a>
+    </div>
+
+    <!-- Cảnh báo nếu sửa suất đã có vé -->
+    <div th:if="${showtime != null}"
+         style="margin-bottom:1.25rem;padding:0.75rem 1rem;
+                background:rgba(232,184,75,0.08);border:1px solid rgba(232,184,75,0.25);
+                border-radius:var(--radius);font-size:0.82rem;color:var(--gold);">
+        ⚠️ Nếu suất chiếu đã có vé được đặt, hệ thống sẽ không cho thay đổi phim, phòng hoặc giờ chiếu.
+    </div>
+
+    <div class="card" style="max-width:560px;">
+
+        <div th:if="${errorMsg}" class="alert alert-error" th:text="${errorMsg}"></div>
+
+        <!-- Action thay đổi theo create / edit -->
+        <form th:action="${showtime != null}
+                  ? @{/admin/showtimes/{id}/edit(id=${showtime.showtimeId})}
+                  : @{/admin/showtimes/create}"
+              method="post"
+              th:object="${showtimeRequest}">
+
+            <div class="form-group">
+                <label class="form-label">Phim</label>
+                <select th:field="*{movieId}" class="form-control"
+                        th:classappend="${#fields.hasErrors('movieId')} ? 'is-invalid'">
+                    <option value="">-- Chọn phim --</option>
+                    <option th:each="m : ${movies}"
+                            th:value="${m.movieId}"
+                            th:text="${m.title} + ' (' + ${m.duration} + ' phút)'">
+                    </option>
+                </select>
+                <div class="field-error" th:errors="*{movieId}" th:if="${#fields.hasErrors('movieId')}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Phòng chiếu</label>
+                <select th:field="*{roomId}" class="form-control"
+                        th:classappend="${#fields.hasErrors('roomId')} ? 'is-invalid'">
+                    <option value="">-- Chọn phòng --</option>
+                    <option th:each="r : ${rooms}"
+                            th:value="${r.roomId}"
+                            th:text="${r.roomName} + ' · ' + ${r.roomType} + ' (' + ${r.totalSeat} + ' ghế)'">
+                    </option>
+                </select>
+                <div class="field-error" th:errors="*{roomId}" th:if="${#fields.hasErrors('roomId')}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Giờ bắt đầu</label>
+                <input type="datetime-local" th:field="*{startTime}" class="form-control"
+                       th:classappend="${#fields.hasErrors('startTime')} ? 'is-invalid'"/>
+                <div class="field-error" th:errors="*{startTime}" th:if="${#fields.hasErrors('startTime')}"></div>
+                <div style="font-size:0.76rem;color:var(--text-3);margin-top:0.3rem;">
+                    Giờ kết thúc = Giờ bắt đầu + Thời lượng phim + 15 phút dọn phòng
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Giá vé cơ bản (₫)</label>
+                <input type="number" th:field="*{basePrice}" class="form-control"
+                       placeholder="VD: 90000" min="0"
+                       th:classappend="${#fields.hasErrors('basePrice')} ? 'is-invalid'"/>
+                <div class="field-error" th:errors="*{basePrice}" th:if="${#fields.hasErrors('basePrice')}"></div>
+                <div style="font-size:0.76rem;color:var(--text-3);margin-top:0.3rem;">
+                    Ghế VIP +20,000₫ · Ghế Couple +30,000₫
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary"
+                        th:text="${showtime != null} ? 'Lưu thay đổi' : 'Tạo suất chiếu'">
+                </button>
+                <a th:href="@{/admin/showtimes}" class="btn btn-ghost">Hủy</a>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

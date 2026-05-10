@@ -1,39 +1,42 @@
 package org.example.java_web_project.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "tickets", uniqueConstraints = @UniqueConstraint(columnNames = {"showtime_id", "seat_id"}))
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "tickets")   // Bỏ uniqueConstraints — logic chặn ghế đã xử lý ở SeatRepository
+@NoArgsConstructor @AllArgsConstructor @Getter @Setter
 public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ticket_id")
     private Integer ticketId;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
-    @ManyToOne
-    @JoinColumn(name = "showtime_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "showtime_id", nullable = false)
     private Showtime showtime;
 
-    @ManyToOne
-    @JoinColumn(name = "seat_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seat_id", nullable = false)
     private Seat seat;
 
-    @Column(name = "ticket_price")
-    private Double ticketPrice;
+    @Column(name = "ticket_price", precision = 10, scale = 2)
+    private BigDecimal ticketPrice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ticket_status")
     private TicketStatus ticketStatus;
+
+    public enum TicketStatus {
+        PENDING_PAYMENT,  // Đang giữ chỗ, chờ thanh toán VNPay
+        BOOKED,           // Đã thanh toán thành công
+        CANCELLED,        // Hủy (giải phóng ghế hoàn toàn)
+        USED              // Đã sử dụng
+    }
 }

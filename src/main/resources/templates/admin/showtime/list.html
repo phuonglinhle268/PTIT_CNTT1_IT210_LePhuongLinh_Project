@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Quản lý Suất chiếu')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="main-wrap">
+
+    <div class="page-header">
+        <div>
+            <div class="page-title">Suất chiếu</div>
+            <div class="page-subtitle" th:text="${showtimes.size()} + ' suất chiếu trong hệ thống'"></div>
+        </div>
+        <a th:href="@{/admin/showtimes/create}" class="btn btn-primary">+ Tạo suất chiếu</a>
+    </div>
+
+    <div th:if="${successMsg}" class="alert alert-success" th:text="${successMsg}"></div>
+    <div th:if="${errorMsg}"   class="alert alert-error"   th:text="${errorMsg}"></div>
+
+    <div class="card" style="padding:0;overflow:hidden;">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Phim</th>
+                    <th>Phòng</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                    <th>Giá vé</th>
+                    <th>Trạng thái</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(showtimes)}">
+                    <td colspan="7" style="text-align:center;color:var(--text-3);padding:2.5rem;">
+                        Chưa có suất chiếu nào.
+                        <a th:href="@{/admin/showtimes/create}">Tạo ngay →</a>
+                    </td>
+                </tr>
+                <tr th:each="st : ${showtimes}">
+                    <td class="td-main" th:text="${st.movie.title}"></td>
+                    <td th:text="${st.room.roomName}"></td>
+                    <td th:text="${#temporals.format(st.startTime,'HH:mm dd/MM/yyyy')}"></td>
+                    <td th:text="${#temporals.format(st.endTime,'HH:mm dd/MM/yyyy')}"></td>
+                    <td th:text="${#numbers.formatDecimal(st.basePrice,0,'COMMA',0,'POINT')} + ' ₫'"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${st.status.name() == 'COMING'}   ? 'badge-gold'  :
+                                             (${st.status.name() == 'SHOWING'}  ? 'badge-green' :
+                                             (${st.status.name() == 'SOLD_OUT'} ? 'badge-red'   : 'badge-gray'))"
+                              th:text="${st.status.name() == 'COMING'}   ? 'Sắp chiếu'  :
+                                       (${st.status.name() == 'SHOWING'}  ? 'Đang chiếu' :
+                                       (${st.status.name() == 'SOLD_OUT'} ? 'Hết vé'     :
+                                       (${st.status.name() == 'ENDED'}    ? 'Đã chiếu'  : 'Đã hủy')))">
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:0.4rem;">
+                            <!-- Nút Sửa — chỉ hiện nếu chưa kết thúc/hủy -->
+                            <a th:if="${st.status.name() != 'ENDED' and st.status.name() != 'CANCELLED'}"
+                               th:href="@{/admin/showtimes/{id}/edit(id=${st.showtimeId})}"
+                               class="btn btn-ghost btn-sm">Sửa</a>
+
+                            <!-- Nút Hủy -->
+                            <form th:if="${st.status.name() != 'ENDED' and st.status.name() != 'CANCELLED'}"
+                                  th:action="@{/admin/showtimes/{id}/delete(id=${st.showtimeId})}"
+                                  method="post"
+                                  th:data-title="${st.movie.title}">
+                                <button type="button" class="btn btn-danger btn-sm"
+                                        onclick="confirmCancel(this.closest('form'))">Hủy</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function confirmCancel(form) {
+        var title = form.getAttribute('data-title') || 'suất chiếu này';
+        if (confirm('Hủy suất chiếu phim "' + title + '"?\nCác vé đã đặt sẽ không bị ảnh hưởng.')) {
+            form.submit();
+        }
+    }
+</script>
+</body>
+</html>
