@@ -36,7 +36,7 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
             @Param("excludeId") Integer excludeId
     );
 
-    /** Tất cả suất chiếu còn hiệu lực (Admin quản lý) */
+    // Tất cả suất chiếu còn hiệu lực (Admin quản lý)
     @Query("SELECT s FROM Showtime s JOIN FETCH s.movie JOIN FETCH s.room ORDER BY s.startTime DESC")
     List<Showtime> findAllWithDetails();
 

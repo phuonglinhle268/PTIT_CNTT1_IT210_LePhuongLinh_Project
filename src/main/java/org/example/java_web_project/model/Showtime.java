@@ -30,7 +30,7 @@ public class Showtime {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
-    /** Thời gian dọn phòng (phút), mặc định 15 */
+    // Thời gian dọn phòng (phút), mặc định 15'
     @Column(name = "waiting_time")
     private Integer waitingTime = 15;
 

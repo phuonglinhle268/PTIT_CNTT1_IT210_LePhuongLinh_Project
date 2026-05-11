@@ -93,7 +93,7 @@
                             border:1px solid rgba(232,184,75,0.2);border-radius:var(--radius);">
                     <span style="font-size:1.1rem;">💳</span>
                     <span style="font-size:0.8rem;color:var(--text-2);">
-                        Thanh toán qua <strong style="color:var(--gold);">VNPay</strong>
+                        Thanh toán qua <strong style="color:var(--gold);">cổng thanh toán</strong>
                     </span>
                 </div>
 
@@ -106,7 +106,7 @@
                             class="btn btn-primary"
                             style="width:100%;justify-content:center;padding:0.75rem;"
                             disabled>
-                        Thanh toán với VNPay →
+                        Thanh toán trực tuyến →
                     </button>
                 </form>
 
@@ -119,7 +119,7 @@
 </div>
 
 <script th:inline="javascript">
-    // ── Countdown 10 phút ────────────────────────────────────────────────────
+    // đếm 10'
     let totalSeconds = 10 * 60;
     const countdownEl = document.getElementById('countdown');
     const countdownBox = document.getElementById('countdownBox');
@@ -166,7 +166,7 @@
         }
     }, 1000);
 
-    // ── Sơ đồ ghế ────────────────────────────────────────────────────────────
+    // sơ đồ ghế
     const BASE_PRICE  = /*[[${showtime.basePrice}]]*/ 0;
     const PRICE_EXTRA = { NORMAL: 0, VIP: 20000, COUPLE: 30000 };
 

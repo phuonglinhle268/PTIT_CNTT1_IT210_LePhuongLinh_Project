@@ -103,7 +103,7 @@ public class VNPayService {
         return Integer.parseInt(txnRef.split("_")[0]);
     }
 
-    // ── Crypto ───────────────────────────────────────────────────────────────
+    //  Crypto
 
     private String hmacSha512(String key, String data) {
         try {

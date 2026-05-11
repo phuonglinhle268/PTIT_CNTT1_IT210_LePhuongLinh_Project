@@ -35,7 +35,13 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    //implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-crypto'
+
+    // Spring Boot Starter Security bị comment vì sẽ kích hoạt toàn bộ
+    // Security filter chain (login form mặc định, CSRF, v.v.)
+    // Chỉ cần BCrypt thì dùng spring-security-crypto ở trên là đủ
+    // implementation 'org.springframework.boot:spring-boot-starter-security'
+
 }
 
 tasks.named('test') {

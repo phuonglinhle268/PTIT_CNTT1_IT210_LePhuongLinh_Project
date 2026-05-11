@@ -5,7 +5,7 @@ import lombok.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "tickets")   // Bỏ uniqueConstraints — logic chặn ghế đã xử lý ở SeatRepository
+@Table(name = "tickets")
 @NoArgsConstructor @AllArgsConstructor @Getter @Setter
 public class Ticket {
 

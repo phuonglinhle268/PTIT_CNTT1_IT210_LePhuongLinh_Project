@@ -50,7 +50,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     """)
     Optional<Booking> findByBookingCodeWithDetails(@Param("code") String code);
 
-    // Scheduler: lấy các đơn PENDING quá thời hạn (10 phút)
+    //lấy các đơn PENDING quá thời hạn (10 phút)
     @Query("""
         SELECT b FROM Booking b
         JOIN FETCH b.tickets

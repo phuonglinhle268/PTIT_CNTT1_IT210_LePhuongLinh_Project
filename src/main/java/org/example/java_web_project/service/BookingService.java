@@ -25,7 +25,7 @@ public class BookingService {
     private final SeatRepository     seatRepository;
     private final TicketRepository   ticketRepository;
 
-    // ── Tạo đơn PENDING ──────────────────────────────────────────────────────
+    //Tạo đơn PENDING
 
     @Transactional(rollbackFor = Exception.class)
     public Booking createPendingBooking(BookingDTO dto, User user) {
@@ -43,7 +43,7 @@ public class BookingService {
         List<Integer> occupied = seatRepository.findBookedSeatIdsByShowtime(showtime.getShowtimeId());
         List<Integer> conflict = dto.getSeatIds().stream().filter(occupied::contains).toList();
         if (!conflict.isEmpty()) {
-            throw new RuntimeException("Ghế " + conflict + " đang được giữ hoặc đã đặt. Vui lòng chọn lại.");
+            throw new RuntimeException("Ghế " + conflict + " đang được giữ hoặc đã đặt. Hãy chọn ghế khác!");
         }
 
         Booking booking = new Booking();
@@ -79,7 +79,7 @@ public class BookingService {
         return booking;
     }
 
-    // ── VNPay: thành công ────────────────────────────────────────────────────
+    // VNPay: thành công
 
     @Transactional(rollbackFor = Exception.class)
     public void confirmPayment(Integer bookingId) {
@@ -96,7 +96,7 @@ public class BookingService {
         updateShowtimeSoldOut(booking.getTickets().get(0).getShowtime());
     }
 
-    // ── VNPay: thất bại / hủy ────────────────────────────────────────────────
+    // VNPay: thất bại / hủy
 
     @Transactional(rollbackFor = Exception.class)
     public void failPayment(Integer bookingId) {
@@ -112,7 +112,7 @@ public class BookingService {
     }
 
     // ── Scheduler: tự hủy đơn PENDING quá 10 phút ───────────────────────────
-    // Chạy mỗi 1 phút. Cần @EnableScheduling ở main class.
+    // @EnableScheduling ở main class.
 
     @Scheduled(fixedDelay = 60_000)
     @Transactional
@@ -140,9 +140,9 @@ public class BookingService {
         }
     }
 
-    // ── CORE-07: Lịch sử ─────────────────────────────────────────────────────
-    // Dùng findByUserId (không JOIN FETCH tickets) — Hibernate tự resolve
-    // lazy load theo từng booking → không bao giờ duplicate
+    //  Lịch sử
+    // Dùng findByUserId (không JOIN FETCH tickets)
+    // lazy load theo từng booking
 
     public List<Booking> getBookingHistory(Integer userId) {
         return bookingRepository.findByUserId(userId);
@@ -157,7 +157,7 @@ public class BookingService {
         return b;
     }
 
-    // ── CORE-09: Hủy vé ─────────────────────────────────────────────────────
+    //hủy vé
 
     @Transactional(rollbackFor = Exception.class)
     public void cancelBooking(Integer bookingId, Integer userId) {
@@ -193,7 +193,7 @@ public class BookingService {
         }
     }
 
-    // ── Staff ─────────────────────────────────────────────────────────────────
+    //staff
 
     public Booking findByBookingCode(String code) {
         return bookingRepository.findByBookingCodeWithDetails(code)

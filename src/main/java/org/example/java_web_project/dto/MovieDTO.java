@@ -1,12 +1,12 @@
 package org.example.java_web_project.dto;
 
-
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.java_web_project.model.Movie;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovieDTO {
-
 
     @NotBlank(message = "Tên phim không được để trống")
     private String title;
@@ -34,6 +33,7 @@ public class MovieDTO {
     @Min(value = 1, message = "Thời lượng phải lớn hơn 0")
     private Integer duration;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
 
     @NotBlank(message = "Poster không được để trống")

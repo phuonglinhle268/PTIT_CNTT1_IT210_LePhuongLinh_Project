@@ -20,7 +20,7 @@ public class MovieController {
 
     private final MovieRepository movieRepository;
 
-    // Trang chủ customer: danh sách phim đang chiếu + sắp chiếu
+    // Trang chủ customer
     @GetMapping
     public String home(Model model, @RequestParam(required = false) String keyword) {
         List<Movie> nowShowing;

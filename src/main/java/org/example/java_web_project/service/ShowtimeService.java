@@ -24,7 +24,7 @@ public class ShowtimeService {
     private final RoomRepository     roomRepository;
     private final SeatRepository     seatRepository;
 
-    // ── Admin: Xem danh sách ─────────────────────────────────────────────────
+    // Admin: Xem danh sách
 
     public List<Showtime> getAllShowtimes() {
         return showtimeRepository.findAllWithDetails();
@@ -34,7 +34,7 @@ public class ShowtimeService {
         return roomRepository.findAll();
     }
 
-    // ── Admin: CORE-05 Tạo suất chiếu ───────────────────────────────────────
+    // Admin: CORE-05 Tạo suất chiếu
 
     @Transactional
     public void createShowtime(ShowtimeDTO dto) {
@@ -45,13 +45,12 @@ public class ShowtimeService {
 
         LocalDateTime startTime = dto.getStartTime();
 
-        // ── Không cho chọn ngày/giờ trong quá khứ
-        // (đã có @Future trong DTO nhưng validate lại ở service để an toàn)
+        //  Không cho chọn ngày/giờ trong quá khứ
         if (startTime.isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Thời gian bắt đầu không được ở trong quá khứ.");
         }
 
-        // ── Không cho tạo suất chiếu trước ngày công chiếu của phim
+        // Không cho tạo suất chiếu trước ngày công chiếu của phim
         if (movie.getReleaseDate() != null
                 && startTime.toLocalDate().isBefore(movie.getReleaseDate())) {
             throw new RuntimeException(String.format(
@@ -86,7 +85,7 @@ public class ShowtimeService {
         showtimeRepository.save(showtime);
     }
 
-    // ── Admin: CORE-05 Cập nhật suất chiếu ──────────────────────────────────
+    //Admin: CORE-05 Cập nhật suất chiếu
 
     @Transactional
     public void updateShowtime(Integer id, ShowtimeDTO dto) {
@@ -109,12 +108,12 @@ public class ShowtimeService {
 
         LocalDateTime startTime = dto.getStartTime();
 
-        // ── Không cho chọn ngày/giờ trong quá khứ
+        //  Không cho chọn ngày/giờ trong quá khứ
         if (startTime.isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Thời gian bắt đầu không được ở trong quá khứ.");
         }
 
-        // ── Không cho tạo suất chiếu trước ngày công chiếu của phim
+        // Không cho tạo suất chiếu trước ngày công chiếu của phim
         if (movie.getReleaseDate() != null
                 && startTime.toLocalDate().isBefore(movie.getReleaseDate())) {
             throw new RuntimeException(String.format(
@@ -147,8 +146,7 @@ public class ShowtimeService {
         showtimeRepository.save(showtime);
     }
 
-    // ── Admin: Hủy suất chiếu ────────────────────────────────────────────────
-
+    //Admin: Hủy suất chiếu
     @Transactional
     public void deleteShowtime(Integer id) {
         Showtime showtime = showtimeRepository.findById(id)
@@ -157,20 +155,13 @@ public class ShowtimeService {
         showtimeRepository.save(showtime);
     }
 
-    // ── CORE-08: Scheduler tự động cập nhật trạng thái ──────────────────────
-    // Chạy mỗi 1 phút. Cần @EnableScheduling trong JavaWebProjectApplication.
-    //
-    // Logic:
-    //   Movie  COMING_SOON → NOW_SHOWING : khi now >= releaseDate
-    //   COMING             → SHOWING     : khi now >= startTime
-    //   SHOWING            → ENDED       : khi now >= endTime
-
+    // CORE-08: Scheduler tự động cập nhật trạng thái
     @Scheduled(fixedDelay = 60_000)
     @Transactional
     public void syncShowtimeStatuses() {
         LocalDateTime now = LocalDateTime.now();
 
-        // ── Phim COMING_SOON → NOW_SHOWING khi đến ngày công chiếu
+        // Phim COMING_SOON → NOW_SHOWING khi đến ngày công chiếu
         List<Movie> toNowShowing = movieRepository
                 .findByStatusAndReleaseDateLessThanEqual(
                         Movie.Status.COMING_SOON, now.toLocalDate());
@@ -180,13 +171,13 @@ public class ShowtimeService {
             log.info("[Scheduler] Chuyển {} phim COMING_SOON → NOW_SHOWING", toNowShowing.size());
         }
 
-        // ── Suất COMING → SHOWING khi đến giờ bắt đầu
+        //  Suất COMING → SHOWING khi đến giờ bắt đầu
         List<Showtime> toShowing = showtimeRepository
                 .findByStatusAndStartTimeLessThanEqual(Showtime.Status.COMING, now);
         toShowing.forEach(s -> s.setStatus(Showtime.Status.SHOWING));
         if (!toShowing.isEmpty()) showtimeRepository.saveAll(toShowing);
 
-        // ── Suất SHOWING → ENDED khi qua giờ kết thúc
+        // Suất SHOWING → ENDED khi qua giờ kết thúc
         List<Showtime> toEnded = showtimeRepository
                 .findByStatusAndEndTimeLessThanEqual(Showtime.Status.SHOWING, now);
         toEnded.forEach(s -> s.setStatus(Showtime.Status.ENDED));
@@ -203,7 +194,7 @@ public class ShowtimeService {
                 toEnded.size() + soldOutEnded.size());
     }
 
-    // ── Customer: Danh sách suất chiếu của 1 phim ───────────────────────────
+    //Customer: Danh sách suất chiếu của 1 phim
     // Chỉ hiển thị COMING và SOLD_OUT. ENDED / CANCELLED / SHOWING đều ẩn.
 
     public List<Showtime> getAvailableShowtimesByMovie(Integer movieId) {
@@ -219,7 +210,7 @@ public class ShowtimeService {
                 .orElseThrow(() -> new RuntimeException("Suất chiếu không tồn tại"));
     }
 
-    // ── Customer: Sơ đồ ghế ─────────────────────────────────────────────────
+    //customer: Sơ đồ ghế
 
     public List<SeatStatusDTO> getSeatMap(Integer showtimeId) {
         Showtime showtime = getShowtimeById(showtimeId);

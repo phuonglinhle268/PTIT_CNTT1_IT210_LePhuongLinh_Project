@@ -90,11 +90,6 @@
         <div class="card">
           <div style="font-size:0.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.25rem;">Trạng thái & Phân loại</div>
 
-          <!--
-            FIX: Dùng th:value="${s.name()}" thay vì th:value="${s}"
-            Thymeleaf so khớp th:field (enum) với option value bằng chuỗi .name()
-            Nếu dùng th:value="${s}" (object), Thymeleaf không nhận ra → không selected
-          -->
           <div class="form-group">
             <label class="form-label" for="status">Trạng thái *</label>
             <select id="status" th:field="*{status}"
@@ -111,10 +106,6 @@
             <div th:if="${#fields.hasErrors('status')}" class="field-error" th:errors="*{status}"></div>
           </div>
 
-          <!--
-            FIX: ageRating dùng th:field để Thymeleaf tự so khớp value string → selected đúng
-            Các option value phải khớp chính xác với dữ liệu trong DB (P, C13, C16, C18)
-          -->
           <div class="form-group">
             <label class="form-label" for="ageRating">Phân loại tuổi</label>
             <select id="ageRating" th:field="*{ageRating}" class="form-control">

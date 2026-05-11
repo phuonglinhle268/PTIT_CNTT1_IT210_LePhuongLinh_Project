@@ -21,7 +21,6 @@ public class AdminShowtimeController {
     private final ShowtimeService showtimeService;
     private final MovieService    movieService;
 
-    // ── Danh sách ────────────────────────────────────────────────────────────
 
     @GetMapping
     public String list(Model model) {
@@ -29,7 +28,6 @@ public class AdminShowtimeController {
         return "admin/showtime/list";
     }
 
-    // ── Tạo mới ──────────────────────────────────────────────────────────────
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
@@ -57,8 +55,6 @@ public class AdminShowtimeController {
             return "admin/showtime/form";
         }
     }
-
-    // ── Chỉnh sửa ────────────────────────────────────────────────────────────
 
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Integer id, Model model) {
@@ -108,7 +104,6 @@ public class AdminShowtimeController {
         }
     }
 
-    // ── Hủy suất chiếu ───────────────────────────────────────────────────────
 
     @PostMapping("/{id}/delete")
     public String deleteShowtime(@PathVariable Integer id, RedirectAttributes ra) {
@@ -121,8 +116,7 @@ public class AdminShowtimeController {
         return "redirect:/admin/showtimes";
     }
 
-    // ── Helper ───────────────────────────────────────────────────────────────
-
+    // helper
     private void fillFormModel(Model model) {
         model.addAttribute("movies", movieService.getAllMovies().stream()
                 .filter(m -> m.getStatus() != Movie.Status.STOPPED)

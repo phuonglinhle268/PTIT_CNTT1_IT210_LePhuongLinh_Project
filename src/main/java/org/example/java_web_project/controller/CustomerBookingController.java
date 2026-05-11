@@ -29,7 +29,7 @@ public class CustomerBookingController {
     private final VNPayService    vnPayService;
     private final UserRepository  userRepository;
 
-    // ── Danh sách suất chiếu của 1 phim ──────────────────────────────────────
+    //Danh sách suất chiếu của 1 phim
 
     @GetMapping("/customer/showtimes/{movieId}")
     public String showtimeList(@PathVariable Integer movieId, Model model) {
@@ -38,7 +38,7 @@ public class CustomerBookingController {
         return "customer/showtime-list";
     }
 
-    // ── Trang chọn ghế ───────────────────────────────────────────────────────
+    //Trang chọn ghế
 
     @GetMapping("/customer/booking/{showtimeId}")
     public String seatSelect(@PathVariable Integer showtimeId,
@@ -57,9 +57,7 @@ public class CustomerBookingController {
         return "customer/seat-select";
     }
 
-    // ── Xác nhận đặt vé → tạo đơn PENDING → redirect VNPay ─────────────────
-    // Fix whitepage: KHÔNG dùng @Valid + BindingResult với hidden inputs
-    // Validate thủ công để kiểm soát hoàn toàn error handling
+    //Xác nhận đặt vé → tạo đơn PENDING → redirect VNPay
 
     @PostMapping("/customer/booking/confirm")
     public String confirmBooking(@RequestParam Integer showtimeId,
@@ -109,7 +107,7 @@ public class CustomerBookingController {
         }
     }
 
-    // ── Lịch sử đặt vé — CORE-07 ─────────────────────────────────────────────
+    //Lịch sử đặt vé
 
     @GetMapping("/customer/bookings")
     public String bookingHistory(HttpSession session, Model model) {
@@ -126,7 +124,7 @@ public class CustomerBookingController {
         return "customer/booking-detail";
     }
 
-    // ── Hủy vé — CORE-09 ─────────────────────────────────────────────────────
+    //Hủy vé
 
     @PostMapping("/customer/bookings/{id}/cancel")
     public String cancelBooking(@PathVariable Integer id,
@@ -141,7 +139,7 @@ public class CustomerBookingController {
         return "redirect:/customer/bookings/" + id;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // Helpers
 
     private SessionUser currentUser(HttpSession session) {
         return (SessionUser) session.getAttribute(AuthService.SESSION_KEY);

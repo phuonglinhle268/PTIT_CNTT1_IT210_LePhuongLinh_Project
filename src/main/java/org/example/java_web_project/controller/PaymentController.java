@@ -94,7 +94,7 @@ public class PaymentController {
         }
     }
 
-    // ── Mã lỗi VNPay phổ biến ────────────────────────────────────────────────
+    // Mã lỗi VNPay phổ biến
 
     private String getFailReason(String code) {
         return switch (code) {

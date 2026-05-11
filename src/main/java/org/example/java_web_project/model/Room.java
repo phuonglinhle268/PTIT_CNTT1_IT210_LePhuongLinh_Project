@@ -20,8 +20,7 @@ public class Room {
     @Column(name = "total_seat", nullable = false)
     private Integer totalSeat;
 
-    // Lưu dưới dạng String thường (không dùng @Enumerated)
-    // vì DB có giá trị "2D", "3D" không phải tên Java hợp lệ
+    // Lưu dưới dạng String thường vì DB có giá trị "2D", "3D"
     @Column(name = "room_type")
     private String roomType;
 

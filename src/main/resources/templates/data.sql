@@ -27,7 +27,7 @@ INSERT IGNORE INTO users (username, email, password, role, status)
 VALUES (
     'admin',
     'admin@smartcinema.vn',
-    'admin123',
+    '$2a$10$NOfauwavp1WfesVIa25z7.REnSmmp.iZ62bacKB4Y6mhVeXcQP1Pi',
     'ADMIN',
     true
 );
@@ -40,7 +40,7 @@ INSERT IGNORE INTO users (username, email, password, role, status)
 VALUES (
     'staff',
     'staff@smartcinema.vn',
-    'staff123',
+    '$2a$10$3m1x6kql5OEQOVUOGSbN7.hMNuyPwqNqy7FW7jgqDHMvUXNdgOIBW',
     'STAFF',
     true
 );
