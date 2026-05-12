@@ -25,7 +25,7 @@ public class BookingService {
     private final SeatRepository     seatRepository;
     private final TicketRepository   ticketRepository;
 
-    //Tạo đơn PENDING
+    // ── Tạo đơn PENDING ──────────────────────────────────────────────────────
 
     @Transactional(rollbackFor = Exception.class)
     public Booking createPendingBooking(BookingDTO dto, User user) {
@@ -43,7 +43,7 @@ public class BookingService {
         List<Integer> occupied = seatRepository.findBookedSeatIdsByShowtime(showtime.getShowtimeId());
         List<Integer> conflict = dto.getSeatIds().stream().filter(occupied::contains).toList();
         if (!conflict.isEmpty()) {
-            throw new RuntimeException("Ghế " + conflict + " đang được giữ hoặc đã đặt. Hãy chọn ghế khác!");
+            throw new RuntimeException("Ghế " + conflict + " đang được giữ hoặc đã đặt. Vui lòng chọn lại.");
         }
 
         Booking booking = new Booking();
@@ -76,10 +76,15 @@ public class BookingService {
         booking.setTotalAmount(total);
         booking.setTickets(tickets);
         bookingRepository.save(booking);
+
+        // Sau khi giữ ghế PENDING, check ngay xem còn ghế trống không
+        // để cập nhật SOLD_OUT — tránh ngoài hiện "Còn vé" nhưng trong đã hết ghế
+        updateShowtimeSoldOut(showtime);
+
         return booking;
     }
 
-    // VNPay: thành công
+    // ── VNPay: thành công ────────────────────────────────────────────────────
 
     @Transactional(rollbackFor = Exception.class)
     public void confirmPayment(Integer bookingId) {
@@ -93,10 +98,13 @@ public class BookingService {
         booking.getTickets().forEach(t -> t.setTicketStatus(Ticket.TicketStatus.BOOKED));
         bookingRepository.save(booking);
 
-        updateShowtimeSoldOut(booking.getTickets().get(0).getShowtime());
+        // Lấy showtimeId từ ticket rồi truyền vào — tránh lazy-load thiếu Room
+        Integer showtimeId = booking.getTickets().get(0).getShowtime().getShowtimeId();
+        updateShowtimeSoldOut(showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new RuntimeException("Suất chiếu không tồn tại")));
     }
 
-    // VNPay: thất bại / hủy
+    // ── VNPay: thất bại / hủy ────────────────────────────────────────────────
 
     @Transactional(rollbackFor = Exception.class)
     public void failPayment(Integer bookingId) {
@@ -112,7 +120,6 @@ public class BookingService {
     }
 
     // ── Scheduler: tự hủy đơn PENDING quá 10 phút ───────────────────────────
-    // @EnableScheduling ở main class.
 
     @Scheduled(fixedDelay = 60_000)
     @Transactional
@@ -129,43 +136,51 @@ public class BookingService {
         }
         bookingRepository.saveAll(expired);
         log.info("[Scheduler] Đã hủy {} đơn PENDING quá 10 phút", expired.size());
+
+        // Restore SOLD_OUT → COMING cho các showtime có ghế được giải phóng
+        expired.stream()
+                .map(b -> b.getTickets().get(0).getShowtime())
+                .distinct()
+                .filter(s -> s.getStatus() == Showtime.Status.SOLD_OUT)
+                .forEach(s -> {
+                    s.setStatus(Showtime.Status.COMING);
+                    showtimeRepository.save(s);
+                    log.info("[Scheduler] Restore showtime {} → COMING", s.getShowtimeId());
+                });
     }
 
-    private void updateShowtimeSoldOut(Showtime showtime) {
-        int totalSeats  = showtime.getRoom().getTotalSeat();
-        int bookedCount = seatRepository.findBookedSeatIdsByShowtime(showtime.getShowtimeId()).size();
-        if (bookedCount >= totalSeats) {
-            showtime.setStatus(Showtime.Status.SOLD_OUT);
-            showtimeRepository.save(showtime);
-        }
-    }
-
-    //  Lịch sử
-    // Dùng findByUserId (không JOIN FETCH tickets)
-    // lazy load theo từng booking
+    // ── CORE-07: Lịch sử ─────────────────────────────────────────────────────
 
     public List<Booking> getBookingHistory(Integer userId) {
         return bookingRepository.findByUserId(userId);
     }
 
+    /**
+     * Xem chi tiết đơn — ownership check:
+     * Chỉ chủ đơn mới xem được. Nếu userId không khớp → ném exception
+     * với message chung chung (không tiết lộ đơn có tồn tại hay không).
+     */
     public Booking getBookingDetail(Integer bookingId, Integer userId) {
         Booking b = bookingRepository.findByIdWithDetails(bookingId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn đặt vé"));
+
+        // Ownership check — trả về cùng message để tránh enumeration attack
         if (!b.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("Bạn không có quyền xem đơn này");
+            throw new RuntimeException("Không tìm thấy đơn đặt vé");
         }
         return b;
     }
 
-    //hủy vé
+    // ── CORE-09: Hủy vé ─────────────────────────────────────────────────────
 
     @Transactional(rollbackFor = Exception.class)
     public void cancelBooking(Integer bookingId, Integer userId) {
         Booking booking = bookingRepository.findByIdWithDetails(bookingId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn đặt vé"));
 
+        // Ownership check
         if (!booking.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("Bạn không có quyền hủy đơn này");
+            throw new RuntimeException("Không tìm thấy đơn đặt vé");
         }
         if (booking.getBookingStatus() == Booking.BookingStatus.CANCELLED) {
             throw new RuntimeException("Đơn này đã được hủy trước đó");
@@ -193,11 +208,52 @@ public class BookingService {
         }
     }
 
-    //staff
+    // ── Staff ─────────────────────────────────────────────────────────────────
 
     public Booking findByBookingCode(String code) {
         return bookingRepository.findByBookingCodeWithDetails(code)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn với mã: " + code));
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Đồng bộ trạng thái showtime dựa trên số ghế thực tế còn trống.
+     * Đếm cả BOOKED lẫn PENDING_PAYMENT vì ghế PENDING đang bị giữ,
+     * customer khác không chọn được → coi như hết vé.
+     *
+     * Nếu tất cả ghế bị chiếm → SOLD_OUT
+     * Nếu còn ghế trống mà đang SOLD_OUT → restore về COMING
+     */
+    /**
+     * Reload showtime từ DB để lấy Room.totalSeat chính xác.
+     * KHÔNG dùng entity truyền vào vì có thể là lazy-load chưa fetch Room.
+     */
+    private void updateShowtimeSoldOut(Showtime showtimeRef) {
+        // Luôn reload từ DB — tránh Hibernate lazy-load thiếu Room
+        Showtime showtime = showtimeRepository.findById(showtimeRef.getShowtimeId())
+                .orElse(null);
+        if (showtime == null || showtime.getRoom() == null) return;
+
+        int totalSeats    = showtime.getRoom().getTotalSeat();
+        int occupiedCount = seatRepository
+                .findBookedSeatIdsByShowtime(showtime.getShowtimeId()).size();
+
+        log.debug("[SoldOut] showtime={} occupied={}/{} status={}",
+                showtime.getShowtimeId(), occupiedCount, totalSeats, showtime.getStatus());
+
+        if (occupiedCount >= totalSeats
+                && showtime.getStatus() == Showtime.Status.COMING) {
+            showtime.setStatus(Showtime.Status.SOLD_OUT);
+            showtimeRepository.save(showtime);
+            log.info("[SoldOut] Showtime {} → SOLD_OUT", showtime.getShowtimeId());
+
+        } else if (occupiedCount < totalSeats
+                && showtime.getStatus() == Showtime.Status.SOLD_OUT) {
+            showtime.setStatus(Showtime.Status.COMING);
+            showtimeRepository.save(showtime);
+            log.info("[SoldOut] Showtime {} → COMING (ghế được giải phóng)", showtime.getShowtimeId());
+        }
     }
 
     private String generateCode() {

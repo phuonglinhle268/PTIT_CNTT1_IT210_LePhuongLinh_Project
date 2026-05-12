@@ -124,38 +124,75 @@
 </head>
 
 <nav th:fragment="navbar" class="navbar">
+
+    <!-- Brand — về trang chủ theo role -->
     <a class="navbar-brand"
-       th:href="${session.LOGGED_IN_USER != null and session.LOGGED_IN_USER.role == 'ADMIN'} ? '/admin/dashboard' :
-                (${session.LOGGED_IN_USER != null and session.LOGGED_IN_USER.role == 'STAFF'} ? '/staff/dashboard' : '/movies')">
+       th:href="${session.LOGGED_IN_USER == null}                                          ? '/movies' :
+               (${session.LOGGED_IN_USER.role == 'ADMIN'}                                 ? '/admin/dashboard' :
+               (${session.LOGGED_IN_USER.role == 'STAFF'}                                 ? '/staff/dashboard' : '/movies'))">
         NATIONAL<span>CINEMA</span>
     </a>
 
-    <div class="navbar-nav" th:if="${session.LOGGED_IN_USER != null}">
-        <th:block th:if="${session.LOGGED_IN_USER.role == 'CUSTOMER'}">
+    <!-- Nav links theo role -->
+    <div class="navbar-nav">
+
+        <!-- Chưa đăng nhập -->
+        <th:block th:if="${session.LOGGED_IN_USER == null}">
+            <a th:href="@{/movies}" class="nav-link">Phim</a>
+        </th:block>
+
+        <!-- CUSTOMER -->
+        <th:block th:if="${session.LOGGED_IN_USER != null and session.LOGGED_IN_USER.role == 'CUSTOMER'}">
             <a th:href="@{/movies}" class="nav-link">Phim</a>
             <a th:href="@{/customer/bookings}" class="nav-link">Vé của tôi</a>
         </th:block>
-        <th:block th:if="${session.LOGGED_IN_USER.role == 'STAFF'}">
+
+        <!-- STAFF -->
+        <th:block th:if="${session.LOGGED_IN_USER != null and session.LOGGED_IN_USER.role == 'STAFF'}">
             <a th:href="@{/staff/dashboard}" class="nav-link">Trang chủ</a>
             <a th:href="@{/staff/lookup}" class="nav-link">Tra cứu vé</a>
         </th:block>
-        <th:block th:if="${session.LOGGED_IN_USER.role == 'ADMIN'}">
+
+        <!-- ADMIN -->
+        <th:block th:if="${session.LOGGED_IN_USER != null and session.LOGGED_IN_USER.role == 'ADMIN'}">
             <a th:href="@{/admin/dashboard}" class="nav-link">Trang chủ</a>
             <a th:href="@{/admin/movies}" class="nav-link">Phim</a>
             <a th:href="@{/admin/showtimes}" class="nav-link">Suất chiếu</a>
         </th:block>
+
     </div>
 
-    <div class="navbar-user" th:if="${session.LOGGED_IN_USER != null}">
-        <img th:if="${session.LOGGED_IN_USER.avatar != null}"
-             th:src="${session.LOGGED_IN_USER.avatar}" class="user-avatar" alt="avatar"/>
-        <div th:unless="${session.LOGGED_IN_USER.avatar != null}"
-             class="user-avatar-placeholder"
-             th:text="${#strings.substring(session.LOGGED_IN_USER.fullname, 0, 1)}">U</div>
-        <a th:href="@{/profile}" class="nav-link" th:text="${session.LOGGED_IN_USER.fullname}">Tên</a>
-        <form th:action="@{/auth/logout}" method="get">
-            <button type="submit" class="btn-logout">Đăng xuất</button>
-        </form>
+    <!-- Góc phải: thông tin user hoặc nút đăng nhập/đăng ký -->
+    <div class="navbar-user">
+
+        <!-- Chưa đăng nhập → hiện nút Đăng nhập + Đăng ký -->
+        <th:block th:if="${session.LOGGED_IN_USER == null}">
+            <a th:href="@{/auth/register}" class="btn-logout">Đăng ký</a>
+            <a th:href="@{/auth/login}"
+               style="background:var(--gold);color:#0a0a0f;padding:0.3rem 0.9rem;
+                      border-radius:var(--radius);font-size:0.8rem;font-weight:700;
+                      text-decoration:none;transition:opacity 0.15s;"
+               onmouseover="this.style.opacity='0.85'"
+               onmouseout="this.style.opacity='1'">
+                Đăng nhập
+            </a>
+        </th:block>
+
+        <!-- Đã đăng nhập → hiện avatar + tên + nút đăng xuất -->
+        <th:block th:if="${session.LOGGED_IN_USER != null}">
+            <img th:if="${session.LOGGED_IN_USER.avatar != null}"
+                 th:src="${session.LOGGED_IN_USER.avatar}"
+                 class="user-avatar" alt="avatar"/>
+            <div th:unless="${session.LOGGED_IN_USER.avatar != null}"
+                 class="user-avatar-placeholder"
+                 th:text="${#strings.substring(session.LOGGED_IN_USER.fullname, 0, 1)}">U</div>
+            <a th:href="@{/profile}" class="nav-link"
+               th:text="${session.LOGGED_IN_USER.fullname}">Tên</a>
+            <form th:action="@{/auth/logout}" method="get">
+                <button type="submit" class="btn-logout">Đăng xuất</button>
+            </form>
+        </th:block>
+
     </div>
 </nav>
 

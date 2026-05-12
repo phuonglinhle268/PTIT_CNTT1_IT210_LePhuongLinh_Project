@@ -22,9 +22,8 @@ public class AuthController {
 
     @GetMapping("/register")
     public String showRegister(HttpSession session, Model model) {
-        SessionUser sessionUser = (SessionUser) session.getAttribute(AuthService.SESSION_KEY);
-        if (sessionUser != null) {
-            return redirectByRole(sessionUser.getRole());
+        if (currentUser(session) != null) {
+            return redirectByRole(currentUser(session).getRole());
         }
         model.addAttribute("registerRequest", new RegisterDTO());
         return "auth/register";
@@ -36,9 +35,8 @@ public class AuthController {
                            HttpSession session,
                            Model model,
                            RedirectAttributes redirectAttributes) {
-        SessionUser sessionUser = (SessionUser) session.getAttribute(AuthService.SESSION_KEY);
-        if (sessionUser != null) {
-            return redirectByRole(sessionUser.getRole());
+        if (currentUser(session) != null) {
+            return redirectByRole(currentUser(session).getRole());
         }
         if (bindingResult.hasErrors()) {
             return "auth/register";
@@ -55,9 +53,8 @@ public class AuthController {
 
     @GetMapping("/login")
     public String showLogin(HttpSession session, Model model) {
-        SessionUser sessionUser = (SessionUser) session.getAttribute(AuthService.SESSION_KEY);
-        if (sessionUser != null) {
-            return redirectByRole(sessionUser.getRole());
+        if (currentUser(session) != null) {
+            return redirectByRole(currentUser(session).getRole());
         }
         model.addAttribute("loginRequest", new LoginDTO());
         return "auth/login";
@@ -73,7 +70,19 @@ public class AuthController {
         }
         try {
             SessionUser sessionUser = authService.login(req, session);
+
+            // Nếu interceptor đã lưu URL muốn vào trước khi bị redirect login
+            // thì sau khi login thành công, redirect về đúng trang đó
+            String redirectUrl = (String) session.getAttribute("REDIRECT_AFTER_LOGIN");
+            session.removeAttribute("REDIRECT_AFTER_LOGIN");
+
+            if (redirectUrl != null && !redirectUrl.startsWith("/auth/")
+                    && isAllowedRedirect(redirectUrl, sessionUser.getRole())) {
+                return "redirect:" + redirectUrl;
+            }
+
             return redirectByRole(sessionUser.getRole());
+
         } catch (RuntimeException e) {
             model.addAttribute("errorMsg", e.getMessage());
             return "auth/login";
@@ -87,9 +96,27 @@ public class AuthController {
         return "redirect:/auth/login";
     }
 
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private SessionUser currentUser(HttpSession session) {
+        return (SessionUser) session.getAttribute(AuthService.SESSION_KEY);
+    }
+
     private String redirectByRole(String role) {
-        if ("ADMIN".equals(role)) return "redirect:/admin/dashboard";
-        if ("STAFF".equals(role)) return "redirect:/staff/dashboard";
+        if ("ADMIN".equals(role))  return "redirect:/admin/dashboard";
+        if ("STAFF".equals(role))  return "redirect:/staff/dashboard";
         return "redirect:/movies";
+    }
+
+    /**
+     * Đảm bảo URL redirect sau login phù hợp với role của user.
+     * Tránh trường hợp CUSTOMER bị redirect vào /admin/ do URL cũ trong session.
+     */
+    private boolean isAllowedRedirect(String url, String role) {
+        if (url.startsWith("/admin/") && !"ADMIN".equals(role))    return false;
+        if (url.startsWith("/staff/") && !"STAFF".equals(role)
+                && !"ADMIN".equals(role))    return false;
+        if (url.startsWith("/customer/") && !"CUSTOMER".equals(role)) return false;
+        return true;
     }
 }

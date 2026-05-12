@@ -6,6 +6,7 @@ import org.example.java_web_project.model.Genre;
 import org.example.java_web_project.model.Movie;
 import org.example.java_web_project.repository.GenreRepository;
 import org.example.java_web_project.repository.MovieRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,10 @@ public class MovieService {
 
     // CORE-04: Lấy danh sách tất cả phim (Admin xem)
     public List<Movie> getAllMovies() {
-        return movieRepository.findAll();
+        //return movieRepository.findAll();
+        return movieRepository.findAll(
+                Sort.by(Sort.Direction.DESC, "movieId")
+        );
     }
 
     // CORE-04: Lấy 1 phim theo id
